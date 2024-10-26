@@ -1,0 +1,42 @@
+{
+	"name": "express-test",
+	"version": "1.0.0",
+	"description": "",
+	"main": "server.js",
+	"type": "module",
+	"scripts": {
+		"build": "rimraf dist && tsup",
+		"dev": "nodemon",
+		"start": "node dist/src/server.cjs",
+		"db:studio": "drizzle-kit studio",
+		"db:generate": "drizzle-kit generate",
+		"db:push": "drizzle-kit push",
+		"destroy": "rimraf node_modules"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"dotenv": "^16.4.5",
+		"drizzle-orm": "^0.35.3",
+		"express": "^4.21.1",
+		"express-rate-limit": "^7.4.1",
+		"helmet": "^8.0.0",
+		"nodemon": "^3.1.7",
+		"picocolors": "^1.1.1",
+		"postgres": "^3.4.5",
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"@trivago/prettier-plugin-sort-imports": "^4.3.0",
+		"@types/express": "^5.0.0",
+		"@types/node": "^22.8.1",
+		"drizzle-kit": "^0.26.2",
+		"eslint-plugin-unused-imports": "^4.1.4",
+		"prettier": "^3.3.3",
+		"rimraf": "^6.0.1",
+		"tsup": "^8.3.5",
+		"tsx": "^4.19.1",
+		"typescript": "^5.6.3"
+	}
+}
