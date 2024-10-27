@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 
+import TodoService from "@/app/todo/Todo.service";
+import { TodoServerSchema } from "@/app/todo/Todo.validators";
+
 import { ApiController } from "@/controllers/base/api.controller";
-import TodoService from "@/services/todo.service";
 import { ServiceApiResponse } from "@/utils/serviceApi";
-import { TodoServerSchema } from "@/validators/todo.validators";
 
 export default class TodoController extends ApiController {
 	protected todoService: TodoService;
@@ -35,7 +36,34 @@ export default class TodoController extends ApiController {
 
 	async retrieveTodo() {
 		try {
-			const response = await this.todoService.retrieveTodo();
+			const id = Number(this.request.params.id);
+			const response = await this.todoService.retrieveTodo(id);
+
+			return this.apiResponse.sendResponse(response);
+		} catch (error: unknown) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async updateTodo() {
+		try {
+			const id = Number(this.request.params.id);
+			const body = this.request.body;
+			const check = TodoServerSchema.safeParse(body);
+			if (!check.success)
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join("\n"));
+
+			const response = await this.todoService.updateTodo(id, check.data);
+
+			return this.apiResponse.sendResponse(response);
+		} catch (error: unknown) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async retrieveAllTodo() {
+		try {
+			const response = await this.todoService.retrieveAllTodo();
 			return this.apiResponse.sendResponse(response);
 		} catch (error: unknown) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);

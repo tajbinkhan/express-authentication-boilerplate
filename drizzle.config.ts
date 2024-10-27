@@ -1,7 +1,7 @@
 import type { Config } from "drizzle-kit";
 
 const connectionString = process.env.DATABASE_URL;
-const schemaPath = ["./src/models/todo.model.ts"];
+const schemaPath = ["./src/models"];
 const migrationPath = "./.drizzle/migrations/";
 
 export default {
@@ -10,5 +10,5 @@ export default {
 	out: migrationPath,
 	dbCredentials: { url: connectionString },
 	verbose: true,
-	strict: true,
+	strict: true
 } as Config;

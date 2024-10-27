@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { todoRouter } from "@/routes/todo.routes";
+import { todoRouter } from "@/app/todo/Todo.routes";
 
 interface RouteConfig {
 	path: string;
