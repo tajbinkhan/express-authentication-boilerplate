@@ -11,7 +11,7 @@
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
 		"db:push": "drizzle-kit push",
-		"destroy": "rimraf node_modules"
+		"destroy": "rimraf -g \"{node_modules,.next,.cache}\""
 	},
 	"keywords": [],
 	"author": "",

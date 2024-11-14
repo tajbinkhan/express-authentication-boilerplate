@@ -1,6 +1,11 @@
 {
 	"watch": ["src", ".env"],
-	"ext": "ts, js, json, env",
+	"ext": "ts,js,json,env",
 	"ignore": ["node_modules"],
-	"exec": "tsx src/server.ts"
+	"exec": "tsx src/server.ts",
+	"restartable": "rs",
+	"quiet": true,
+	"events": {
+		"restart": "tsx src/logRestart.ts"
+	}
 }

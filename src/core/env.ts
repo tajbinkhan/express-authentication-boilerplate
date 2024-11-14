@@ -4,7 +4,11 @@ import { validateString } from "@/validators/CommonRules";
 
 export const envSchema = z.object({
 	DATABASE_URL: validateString("DATABASE_URL"),
-	PORT: validateString("PORT").refine(value => !isNaN(Number(value)), "PORT must be a number")
+	PORT: validateString("PORT").refine(value => !isNaN(Number(value)), "PORT must be a number"),
+	NODE_ENV: validateString("NODE_ENV").refine(
+		value => ["development", "production"].includes(value),
+		"NODE_ENV must be either 'development' or 'production'"
+	)
 });
 
 const Env = envSchema.safeParse(process.env);

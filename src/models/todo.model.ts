@@ -1,6 +1,6 @@
 import { pgTable, serial, text, varchar } from "drizzle-orm/pg-core";
 
-import { timestamps } from "@/databases/drizzle/heplers";
+import { timestamps } from "@/databases/drizzle/helpers";
 
 export const todo = pgTable("todo", {
 	id: serial("id").primaryKey(),
