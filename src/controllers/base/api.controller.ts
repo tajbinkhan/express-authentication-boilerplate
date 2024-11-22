@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { ApiResponse } from "@/utils/serviceApi";
+import { ApiResponse } from "@/utils/ServiceApi";
 
 type QueryParamsProxy = {
 	[key: string]: string | null;

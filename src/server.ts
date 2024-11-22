@@ -5,7 +5,7 @@ import pc from "picocolors";
 import app from "@/app";
 import "@/core/env";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const ENV = process.env.NODE_ENV || "development";
 
 app.listen(PORT, () => {

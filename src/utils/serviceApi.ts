@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-import { status } from "@/utils/statusCodes";
+import { status } from "@/utils/StatusCodes";
 
 const noContentStatus = [status.HTTP_204_NO_DATA];
 

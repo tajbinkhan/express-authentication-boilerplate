@@ -9,4 +9,7 @@ dotenv.config();
 const sql = postgres(process.env.DATABASE_URL);
 const db = drizzle(sql, { schema });
 
+const pool = postgres(process.env.DATABASE_URL, { max: 1 });
+export const dbPool = drizzle(pool);
+
 export default db;

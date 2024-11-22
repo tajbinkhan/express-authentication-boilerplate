@@ -4,8 +4,8 @@ import { TodoServerSchemaType } from "@/app/todo/Todo.validators";
 
 import DrizzleService from "@/databases/drizzle/service";
 import { todo } from "@/models/Todo.model";
-import { ServiceResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
+import { ServiceResponse } from "@/utils/ServiceApi";
+import { status } from "@/utils/StatusCodes";
 
 export default class TodoService extends DrizzleService {
 	async createTodo(data: TodoServerSchemaType) {

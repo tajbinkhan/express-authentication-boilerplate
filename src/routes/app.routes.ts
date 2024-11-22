@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { authenticationRouter } from "@/app/authentication/Authentication.routes";
 import { todoRouter } from "@/app/todo/Todo.routes";
 
 interface RouteConfig {
@@ -7,4 +8,7 @@ interface RouteConfig {
 	router: Router;
 }
 
-export const routes: RouteConfig[] = [{ path: "/todo", router: todoRouter }];
+export const routes: RouteConfig[] = [
+	{ path: "/todo", router: todoRouter },
+	{ path: "/auth", router: authenticationRouter }
+];

@@ -4,7 +4,7 @@ import TodoService from "@/app/todo/Todo.service";
 import { TodoServerSchema } from "@/app/todo/Todo.validators";
 
 import { ApiController } from "@/controllers/base/api.controller";
-import { ServiceApiResponse } from "@/utils/serviceApi";
+import { ServiceApiResponse } from "@/utils/ServiceApi";
 
 export default class TodoController extends ApiController {
 	protected todoService: TodoService;
