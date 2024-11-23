@@ -8,11 +8,11 @@ import passport from "passport";
 import appRouter from "@/api";
 import appLogger from "@/logger";
 // Passport Strategies
-import { sessionExtensionMiddleware } from "@/middlewares/session.middleware";
 import "@/passport/PassportLocal";
 import appRateLimiter from "@/rateLimiter";
 import DrizzleSessionStore from "@/session/CustomSessionStore";
 import AppHelpers from "@/utils/AppHelpers";
+import { doubleCsrfProtection } from "@/utils/CSRF";
 
 dotenv.config();
 
@@ -43,13 +43,13 @@ app.use(
 		saveUninitialized: true,
 		resave: false,
 		store: new DrizzleSessionStore(),
+		rolling: true,
 		cookie: {
+			sameSite: "none",
 			maxAge: AppHelpers.sessionTimeout
 		}
 	})
 );
-
-app.use(sessionExtensionMiddleware);
 
 /**
  * Initialize passport
@@ -57,6 +57,9 @@ app.use(sessionExtensionMiddleware);
  */
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Generate CSRF token for all routes
+app.use(doubleCsrfProtection);
 
 /**
  * Initialize all routes are handled in the api.ts file

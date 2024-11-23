@@ -1,3 +1,4 @@
+import { NextFunction, Request, Response } from "express";
 import passport from "passport";
 import { Strategy } from "passport-local";
 
@@ -6,35 +7,17 @@ import AuthenticationService from "@/app/authentication/Authentication.service";
 import db from "@/databases/drizzle/connection";
 import { sessions } from "@/models/Authentication.model";
 import AppHelpers from "@/utils/AppHelpers";
+import { ApiResponse } from "@/utils/ServiceApi";
+import { status } from "@/utils/StatusCodes";
 
 const authenticationService = new AuthenticationService();
 
 passport.serializeUser(async (user, done) => {
-	// TODO: The session update function is not working
-	await db
-		.insert(sessions)
-		.values({
-			sessionId: String(user.id),
-			sessionCookie: JSON.stringify(user),
-			userId: user.id,
-			expires: new Date(Date.now() + AppHelpers.sessionTimeout)
-		})
-		.onConflictDoUpdate({
-			target: sessions.sessionId,
-			set: {
-				sessionCookie: JSON.stringify(user),
-				userId: user.id,
-				expires: new Date(Date.now() + AppHelpers.sessionTimeout)
-			}
-		})
-		.execute();
-
 	done(null, user.id);
 });
 
 passport.deserializeUser(async (id: number, done) => {
 	const user = await authenticationService.findUserById(id);
-
 	done(null, user.data);
 });
 
@@ -46,13 +29,9 @@ export default passport.use(
 			if (inputType === "EMAIL") {
 				const user = await authenticationService.findUserByEmail(username);
 
-				if (!user.data) return done(null, false, { message: "Incorrect email." });
-
 				return done(null, user.data);
 			} else {
 				const user = await authenticationService.findUserByUsername(username);
-
-				if (!user.data) return done(null, false, { message: "Incorrect username." });
 
 				return done(null, user.data);
 			}
@@ -61,3 +40,34 @@ export default passport.use(
 		}
 	})
 );
+
+export const localAuthentication = (req: Request, res: Response, next: NextFunction) => {
+	passport.authenticate("local", (err: any, user: Express.User) => {
+		const apiResponse = new ApiResponse(res);
+		if (err)
+			return apiResponse.sendResponse({
+				status: err.status,
+				message: err.message
+			});
+
+		// Log the user in
+		req.login(user, loginErr => {
+			// If there is an error in logging in
+			if (loginErr)
+				return apiResponse.sendResponse({
+					status: status.HTTP_400_BAD_REQUEST,
+					message: "Login Failed"
+				});
+
+			// assign user to the current session
+			db.update(sessions)
+				.set({
+					userId: user.id
+				})
+				.execute();
+
+			// Success response
+			return apiResponse.successResponse("Logged in successfully", user);
+		});
+	})(req, res, next);
+};

@@ -5,12 +5,21 @@ import { dbPool } from "@/databases/drizzle/connection";
 import { sessions } from "@/models/Authentication.model";
 import AppHelpers from "@/utils/AppHelpers";
 
-const sessionTimeout = AppHelpers.sessionTimeout;
-
 export default class DrizzleSessionStore extends session.Store {
+	private sessionTimeout: number;
+
+	/**
+	 * Initialize the session timeout
+	 * @param sessionTimeout
+	 */
+	constructor() {
+		super();
+		this.sessionTimeout = AppHelpers.sessionTimeout;
+	}
+
 	async get(id: string, callback: (err: any, session?: SessionData | null | undefined) => void) {
 		try {
-			const newUpdatedTime = new Date(Date.now() + sessionTimeout);
+			const newUpdatedTime = new Date(Date.now() + this.sessionTimeout);
 			const result = await dbPool
 				.select()
 				.from(sessions)
@@ -20,8 +29,8 @@ export default class DrizzleSessionStore extends session.Store {
 			const sessionData = result[0];
 
 			if (sessionData) {
-				// extend the session
-				await dbPool
+				// Update session timeout
+				dbPool
 					.update(sessions)
 					.set({
 						expires: newUpdatedTime
@@ -40,7 +49,7 @@ export default class DrizzleSessionStore extends session.Store {
 	async set(id: string, session: SessionData, callback?: (err?: any) => void) {
 		try {
 			const sessionString = JSON.stringify(session);
-			const expire = session.cookie.expires || new Date(sessionTimeout);
+			const expire = session.cookie.expires || new Date(this.sessionTimeout);
 
 			await dbPool
 				.insert(sessions)
