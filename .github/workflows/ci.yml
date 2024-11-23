@@ -1,0 +1,36 @@
+name: Build and Test Express App
+
+on:
+  push:
+    branches:
+      - main # Runs the workflow when pushing to the main branch
+  pull_request: # Also runs on pull requests
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20" # Use the Node.js version required by your project
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run build command
+      - name: Build the application
+        run: npm run build
+
+      # Step 5: Optional - Run tests (if applicable)
+      - name: Run tests
+        run: npm test
