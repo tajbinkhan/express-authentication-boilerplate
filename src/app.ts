@@ -10,6 +10,7 @@ import appLogger from "@/logger";
 // Passport Strategies
 import "@/passport/PassportLocal";
 import appRateLimiter from "@/rateLimiter";
+import indexRouter from "@/routes/index.route";
 import DrizzleSessionStore from "@/session/CustomSessionStore";
 import AppHelpers from "@/utils/AppHelpers";
 import { doubleCsrfProtection } from "@/utils/CSRF";
@@ -60,6 +61,12 @@ app.use(passport.session());
 
 // Generate CSRF token for all routes
 app.use(doubleCsrfProtection);
+
+/**
+ * Default route
+ * This is the default route for the server
+ */
+indexRouter(app);
 
 /**
  * Initialize all routes are handled in the api.ts file
