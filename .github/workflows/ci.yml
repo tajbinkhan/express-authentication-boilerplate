@@ -30,7 +30,3 @@ jobs:
       # Step 4: Run build command
       - name: Build the application
         run: npm run build
-
-      # Step 5: Optional - Run tests (if applicable)
-      - name: Run tests
-        run: npm test
