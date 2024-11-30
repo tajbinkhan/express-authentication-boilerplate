@@ -8,10 +8,13 @@
 		"build": "rimraf dist && tsup",
 		"dev": "nodemon",
 		"start": "node dist/src/server.cjs",
+		"format": "prettier --write .",
+		"fix": "eslint --fix .",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
 		"db:push": "drizzle-kit push",
-		"destroy": "rimraf -g \"{node_modules,.next,.cache}\""
+		"destroy": "rimraf -g \"{node_modules,.next,.cache}\"",
+		"prepare": "husky install"
 	},
 	"keywords": [],
 	"author": "",
@@ -45,6 +48,7 @@
 		"@types/cookie-parser": "^1.4.7",
 		"@types/express": "^5.0.0",
 		"@types/express-session": "^1.18.0",
+		"@types/lint-staged": "^13.3.0",
 		"@types/node": "^22.8.1",
 		"@types/passport": "^1.0.17",
 		"@types/passport-google-oauth20": "^2.0.16",
@@ -53,10 +57,24 @@
 		"@types/pg": "^8.11.10",
 		"drizzle-kit": "^0.26.2",
 		"eslint-plugin-unused-imports": "^4.1.4",
+		"husky": "^8.0.0",
+		"lint-staged": "^15.2.10",
 		"prettier": "^3.3.3",
 		"rimraf": "^6.0.1",
 		"tsup": "^8.3.5",
 		"tsx": "^4.19.1",
 		"typescript": "^5.6.3"
+	},
+	"lint-staged": {
+		"**/*.{js,jsx,ts,tsx}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"**/*.{css,scss}": [
+			"prettier --write"
+		],
+		"**/*.{json,md}": [
+			"prettier --write"
+		]
 	}
 }
