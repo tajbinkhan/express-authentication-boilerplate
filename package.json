@@ -1,5 +1,5 @@
 {
-	"name": "express-test",
+	"name": "express-authentication-boilerplate",
 	"version": "1.0.0",
 	"description": "",
 	"main": "server.js",
