@@ -161,7 +161,9 @@ export const zodMessages = {
 			invalidFileType: (field: string, type: string) => `${field} must be of type ${type}.`,
 			invalidUpperCase: (field: string) => `${field} must be at least one upper case.`,
 			invalidLowerCase: (field: string) => `${field} must be at least one lower case.`,
-			invalidNumericCase: (field: string) => `${field} must be at least one number.`
+			invalidNumericCase: (field: string) => `${field} must be at least one number.`,
+			invalidUsername: (field: string) =>
+				`${field} must contain only letters, numbers, and underscores.`
 		}
 	}
 };

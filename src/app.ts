@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
@@ -6,11 +7,11 @@ import helmet from "helmet";
 import passport from "passport";
 
 import appRouter from "@/api";
+import { corsOptions } from "@/cors";
 import appLogger from "@/logger";
 // Passport Strategies
 import "@/passport/passportCustom";
 import "@/passport/passportGoogle";
-// import "@/passport/PassportLocal";
 import appRateLimiter from "@/rateLimiter";
 import indexRouter from "@/routes/index.route";
 import DrizzleSessionStore from "@/session/customSessionStore";
@@ -24,6 +25,7 @@ const app = express();
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors(corsOptions));
 
 /**
  * Initialize logger

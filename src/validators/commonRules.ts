@@ -73,6 +73,14 @@ export const validateSelectObject = (name: string) => {
 		.or(z.null());
 };
 
+export const validateUsername = z
+	.string({
+		required_error: zodMessages.error.required.fieldIsRequired("Username")
+	})
+	.min(1, zodMessages.error.required.fieldIsRequired("Username"))
+	.max(20, zodMessages.error.limit.stringMax("Username", 20))
+	.regex(new RegExp("^[a-zA-Z0-9_]*$"), zodMessages.error.invalid.invalidUsername("Username"));
+
 export const validateEmail = z
 	.string({
 		required_error: zodMessages.error.required.fieldIsRequired("Email")

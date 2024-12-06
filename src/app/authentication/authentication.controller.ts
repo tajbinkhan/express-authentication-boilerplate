@@ -1,8 +1,12 @@
+import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 
 import { encode } from "@/app/authentication/authentication.JWT";
 import AuthenticationService from "@/app/authentication/authentication.service";
-import { UsernameLoginSchema } from "@/app/authentication/authentication.validator";
+import {
+	UserRegisterSchema,
+	UsernameLoginSchema
+} from "@/app/authentication/authentication.validator";
 
 import { ApiController } from "@/controllers/base/api.controller";
 import { UserSchemaType } from "@/databases/drizzle/types";
@@ -44,6 +48,32 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
+	async register() {
+		try {
+			const body = this.getReqBody();
+			const check = UserRegisterSchema.safeParse(body);
+			if (!check.success) {
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+			}
+
+			const { confirmPassword, ...rest } = check.data;
+
+			const extendedData: Omit<UserSchemaType, "id" | "createdAt" | "updatedAt"> = {
+				...rest,
+				image: null,
+				emailVerified: null,
+				name: null,
+				password: bcrypt.hashSync(check.data.password, 10)
+			};
+
+			const user = await this.authenticationService.createUser(extendedData);
+
+			return this.apiResponse.sendResponse(user);
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
 	async loginWithUsername() {
 		try {
 			const body = this.getReqBody();
@@ -60,8 +90,7 @@ export default class AuthenticationController extends ApiController {
 				const user = await this.authenticationService.findUserByEmail(check.data.username);
 				await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 				findUser = user.data!;
-			}
-			if (inputType === "USERNAME") {
+			} else if (inputType === "USERNAME") {
 				const user = await this.authenticationService.findUserByUsername(check.data.username);
 				await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 				findUser = user.data!;
@@ -119,6 +148,21 @@ export default class AuthenticationController extends ApiController {
 				this.response.clearCookie(this.jwtCookieName);
 				return this.apiResponse.successResponse("Logged out");
 			});
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async getSession() {
+		try {
+			const user = this.request.user;
+			if (!user)
+				return this.apiResponse.sendResponse({
+					status: status.HTTP_401_UNAUTHORIZED,
+					message: "Session not found"
+				});
+
+			return this.apiResponse.successResponse("Session found", user);
 		} catch (error) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
 		}

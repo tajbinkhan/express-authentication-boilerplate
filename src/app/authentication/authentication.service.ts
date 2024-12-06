@@ -14,10 +14,12 @@ export default class AuthenticationService extends DrizzleService {
 		try {
 			const createdUser = await this.db.insert(users).values(data).returning();
 
+			const { password, ...user } = createdUser[0];
+
 			return ServiceResponse.createResponse(
 				status.HTTP_201_CREATED,
 				"User created successfully",
-				createdUser[0]
+				user
 			);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);

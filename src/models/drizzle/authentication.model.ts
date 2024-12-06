@@ -9,7 +9,7 @@ export const users = pgTable("user", {
 	username: text("username").unique(),
 	email: text("email").unique(),
 	password: text("password"),
-	emailVerified: timestamp("email_verified", { withTimezone: true }).notNull().defaultNow(),
+	emailVerified: timestamp("email_verified", { withTimezone: true }),
 	image: text("image"),
 	...timestamps
 });

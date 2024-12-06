@@ -8,6 +8,10 @@ import { authenticationMiddleware } from "@/middlewares/authentication.middlewar
 export const authenticationRouter: Router = (() => {
 	const router = express.Router();
 
+	router.post("/register", (req, res) => {
+		new AuthenticationController(req, res).register();
+	});
+
 	router.get("/test", authenticationMiddleware, (req, res) => {
 		res.status(200).send("Test successful");
 	});
@@ -30,6 +34,11 @@ export const authenticationRouter: Router = (() => {
 	// Logout route
 	router.post("/logout", (req, res) => {
 		new AuthenticationController(req, res).logout();
+	});
+
+	// Session route
+	router.get("/session", authenticationMiddleware, (req, res) => {
+		new AuthenticationController(req, res).getSession();
 	});
 
 	// UI Routes
