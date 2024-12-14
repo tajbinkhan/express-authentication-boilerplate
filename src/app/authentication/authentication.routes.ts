@@ -8,12 +8,16 @@ import { authenticationMiddleware } from "@/middlewares/authentication.middlewar
 export const authenticationRouter: Router = (() => {
 	const router = express.Router();
 
-	router.post("/register", (req, res) => {
-		new AuthenticationController(req, res).register();
-	});
-
 	router.get("/test", authenticationMiddleware, (req, res) => {
 		res.status(200).send("Test successful");
+	});
+
+	router.get("/me", authenticationMiddleware, (req, res) => {
+		new AuthenticationController(req, res).getSession();
+	});
+
+	router.post("/register", (req, res) => {
+		new AuthenticationController(req, res).register();
 	});
 
 	// Local Authentication
