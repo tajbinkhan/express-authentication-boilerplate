@@ -60,6 +60,9 @@ export default class AppHelpers {
 	// The session timeout in milliseconds
 	static sessionTimeout = 1000 * 60 * 60 * 24 * 7; // 1 week in milliseconds
 
+	// CSRF token timeout in milliseconds
+	static csrfTimeout = 1000 * 60 * 60; // 5 seconds in milliseconds
+
 	/**
 	 * Determines if the input is an email or a username.
 	 * @param input - The user-provided input.

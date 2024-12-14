@@ -130,6 +130,7 @@ export const zodMessages = {
 		},
 		invalid: {
 			invalidString: (field: string) => `${field} must be a string.`,
+			invalidEmail: (field: string) => `${field} must be a valid email address.`,
 			invalidNumber: (field: string) => `${field} must be a number.`,
 			invalidBoolean: (field: string) => `${field} must be a boolean.`,
 			invalidDate: (field: string) => `${field} must be a date.`,

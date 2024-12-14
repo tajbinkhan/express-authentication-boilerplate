@@ -86,7 +86,7 @@ export const validateEmail = z
 		required_error: zodMessages.error.required.fieldIsRequired("Email")
 	})
 	.min(1, zodMessages.error.required.fieldIsRequired("Email"))
-	.email(zodMessages.error.invalid.invalidString("Email"));
+	.email(zodMessages.error.invalid.invalidEmail("Email"));
 
 export const validatePassword = z
 	.string({

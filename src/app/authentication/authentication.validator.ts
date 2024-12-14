@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import {
-	validateConfirmPassword,
 	validateEmail,
 	validatePassword,
 	validateString,
@@ -13,17 +12,11 @@ export const UsernameLoginSchema = z.object({
 	password: validatePassword
 });
 
-export const UserRegisterSchema = z
-	.object({
-		username: validateUsername,
-		email: validateEmail,
-		password: validatePassword,
-		confirmPassword: validateConfirmPassword
-	})
-	.refine(data => data.password === data.confirmPassword, {
-		message: "Passwords do not match",
-		path: ["confirmPassword"]
-	});
+export const UserRegisterSchema = z.object({
+	username: validateUsername,
+	email: validateEmail,
+	password: validatePassword
+});
 
 export type UsernameLoginSchemaType = z.infer<typeof UsernameLoginSchema>;
 export type UserRegisterSchemaType = z.infer<typeof UserRegisterSchema>;

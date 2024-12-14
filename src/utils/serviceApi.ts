@@ -63,6 +63,13 @@ export class ApiResponse {
 		});
 	}
 
+	unauthorizedResponse(message: string) {
+		return this.sendResponse({
+			status: status.HTTP_401_UNAUTHORIZED,
+			message
+		});
+	}
+
 	badResponse(message: string) {
 		return this.sendResponse({
 			status: status.HTTP_400_BAD_REQUEST,

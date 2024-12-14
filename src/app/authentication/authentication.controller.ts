@@ -56,10 +56,8 @@ export default class AuthenticationController extends ApiController {
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
 			}
 
-			const { confirmPassword, ...rest } = check.data;
-
 			const extendedData: Omit<UserSchemaType, "id" | "createdAt" | "updatedAt"> = {
-				...rest,
+				...check.data,
 				image: null,
 				emailVerified: null,
 				name: null,
@@ -109,8 +107,10 @@ export default class AuthenticationController extends ApiController {
 					});
 				}
 
+				const { password, ...user } = findUser;
+
 				return this.apiResponse.successResponse("Login successful", {
-					user: findUser,
+					user,
 					token: accessToken
 				});
 			});
@@ -156,13 +156,11 @@ export default class AuthenticationController extends ApiController {
 	async getSession() {
 		try {
 			const user = this.request.user;
-			if (!user)
-				return this.apiResponse.sendResponse({
-					status: status.HTTP_401_UNAUTHORIZED,
-					message: "Session not found"
-				});
+			if (!user) return this.apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
 
-			return this.apiResponse.successResponse("Session found", user);
+			const { password, ...userData } = user;
+
+			return this.apiResponse.successResponse("Authorized", userData);
 		} catch (error) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
 		}

@@ -12,6 +12,7 @@ import { status } from "@/utils/statusCodes";
 export default class AuthenticationService extends DrizzleService {
 	async createUser(data: Omit<UserSchemaType, "id" | "createdAt" | "updatedAt">) {
 		try {
+			data.email && (await this.duplicateUserCheckByEmail(data.email));
 			const createdUser = await this.db.insert(users).values(data).returning();
 
 			const { password, ...user } = createdUser[0];
@@ -170,6 +171,26 @@ export default class AuthenticationService extends DrizzleService {
 			}
 
 			return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
+		} catch (error) {
+			return ServiceResponse.createErrorResponse(error);
+		}
+	}
+
+	async duplicateUserCheckByEmail(email: string) {
+		try {
+			const user = await this.db.query.users.findFirst({
+				where: eq(users.email, email)
+			});
+
+			if (user) {
+				return ServiceResponse.createResponse(
+					status.HTTP_409_CONFLICT,
+					"User already exists",
+					true
+				);
+			}
+
+			return ServiceResponse.createResponse(status.HTTP_200_OK, "User does not exist", false);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}

@@ -1,5 +1,7 @@
 import { doubleCsrf } from "csrf-csrf";
 
+import AppHelpers from "@/utils/appHelpers";
+
 const {
 	generateToken, // Use this in your routes to generate tokens
 	validateRequest, // Use this as middleware to validate tokens
@@ -9,7 +11,8 @@ const {
 	getSecret: () => process.env.SECRET, // Secret for generating tokens
 	cookieName: "csrf-token", // Cookie name for the token
 	cookieOptions: {
-		maxAge: 60 * 60 * 1000 // 1 hour
+		maxAge: AppHelpers.csrfTimeout,
+		secure: process.env.NODE_ENV === "production"
 	},
 	size: 32, // The size of the generated tokens
 	getTokenFromRequest: req => req.headers["x-csrf-token"] // Get the token from the request

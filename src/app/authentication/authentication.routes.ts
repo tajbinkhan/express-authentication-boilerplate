@@ -12,7 +12,7 @@ export const authenticationRouter: Router = (() => {
 		res.status(200).send("Test successful");
 	});
 
-	router.get("/me", authenticationMiddleware, (req, res) => {
+	router.get("/me", (req, res) => {
 		new AuthenticationController(req, res).getSession();
 	});
 
