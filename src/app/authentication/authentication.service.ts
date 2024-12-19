@@ -104,7 +104,8 @@ export default class AuthenticationService extends DrizzleService {
 				username: data._json.email!.split("@")[0],
 				password: null,
 				emailVerified: new Date(),
-				image: data._json.picture!
+				image: data._json.picture!,
+				role: "SUBSCRIBER"
 			});
 
 			// Create google account

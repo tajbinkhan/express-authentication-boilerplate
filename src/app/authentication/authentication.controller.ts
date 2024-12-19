@@ -61,7 +61,8 @@ export default class AuthenticationController extends ApiController {
 				image: null,
 				emailVerified: null,
 				name: null,
-				password: bcrypt.hashSync(check.data.password, 10)
+				password: bcrypt.hashSync(check.data.password, 10),
+				role: "SUBSCRIBER"
 			};
 
 			const user = await this.authenticationService.createUser(extendedData);
