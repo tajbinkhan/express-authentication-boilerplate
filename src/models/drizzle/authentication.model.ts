@@ -1,7 +1,28 @@
 import { relations } from "drizzle-orm";
-import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 import { timestamps } from "@/databases/drizzle/helpers";
+
+export const ROLE_LIST = {
+	SUPER_ADMIN: "SUPER_ADMIN",
+	ADMINISTRATOR: "ADMINISTRATOR",
+	EDITOR: "EDITOR",
+	AUTHOR: "AUTHOR",
+	CONTRIBUTOR: "CONTRIBUTOR",
+	SUBSCRIBER: "SUBSCRIBER",
+	enumValues: ["SUPER_ADMIN", "ADMINISTRATOR", "EDITOR", "AUTHOR", "CONTRIBUTOR", "SUBSCRIBER"]
+} as const;
+
+export const ROLE_TYPE = pgEnum("role_type", ROLE_LIST.enumValues);
+
+export const TOKEN_LIST = {
+	PASSWORD_RESET: "PASSWORD_RESET",
+	EMAIL_VERIFICATION: "EMAIL_VERIFICATION",
+	LOGIN_OTP: "LOGIN_OTP",
+	enumValues: ["PASSWORD_RESET", "EMAIL_VERIFICATION", "LOGIN_OTP"]
+} as const;
+
+export const TOKEN_TYPE = pgEnum("token_type", TOKEN_LIST.enumValues);
 
 export const users = pgTable("user", {
 	id: serial("id").primaryKey(),
@@ -11,6 +32,7 @@ export const users = pgTable("user", {
 	password: text("password"),
 	emailVerified: timestamp("email_verified", { withTimezone: true }),
 	image: text("image"),
+	role: ROLE_TYPE("role").notNull().default("SUBSCRIBER"),
 	...timestamps
 });
 
@@ -41,34 +63,19 @@ export const sessions = pgTable("session", {
 	...timestamps
 });
 
-export const verificationTokens = pgTable("verificationToken", {
+export const verificationTokens = pgTable("verification_token", {
 	id: serial("id").primaryKey(),
 	identifier: text("identifier").notNull(),
 	token: text("token").notNull(),
+	tokenType: TOKEN_TYPE("token_type").notNull(),
 	expires: timestamp("expires", { withTimezone: true }).notNull(),
-	...timestamps
-});
-
-export const authenticators = pgTable("authenticator", {
-	id: serial("id").primaryKey(),
-	credentialID: text("credential_iD").notNull().unique(),
-	userId: integer("user_id")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
-	providerAccountId: text("provider_account_id").notNull(),
-	credentialPublicKey: text("credential_public_key").notNull(),
-	counter: integer("counter").notNull(),
-	credentialDeviceType: text("credential_device_type").notNull(),
-	credentialBackedUp: boolean("credential_backed_up").notNull(),
-	transports: text("transports"),
 	...timestamps
 });
 
 // Relationships
 export const usersRelations = relations(users, ({ many }) => ({
 	accounts: many(accounts),
-	sessions: many(sessions),
-	authenticators: many(authenticators)
+	sessions: many(sessions)
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -81,13 +88,6 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessionsRelations = relations(sessions, ({ one }) => ({
 	user: one(users, {
 		fields: [sessions.userId],
-		references: [users.id]
-	})
-}));
-
-export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
-	user: one(users, {
-		fields: [authenticators.userId],
 		references: [users.id]
 	})
 }));

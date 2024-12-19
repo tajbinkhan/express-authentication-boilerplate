@@ -17,16 +17,19 @@ export const authenticationMiddleware = async (
 
 		if (!token) {
 			apiResponse.unauthorizedResponse("Unauthorized: No token provided");
+			return;
 		}
 
 		const decodeToken = await decode({ token });
 
 		if (!decodeToken) {
 			apiResponse.unauthorizedResponse("Unauthorized: Invalid token");
+			return;
 		}
 
 		if (!req.isAuthenticated()) {
 			apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
+			return;
 		}
 
 		next();
