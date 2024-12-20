@@ -6,7 +6,6 @@ import session from "express-session";
 import helmet from "helmet";
 import passport from "passport";
 
-import appRouter from "@/api";
 // Passport Strategies
 import { sessionTimeout } from "@/core/constants";
 import { corsOptions } from "@/cors";
@@ -15,6 +14,7 @@ import "@/passport/passportCustom";
 import "@/passport/passportGoogle";
 import appRateLimiter from "@/rateLimiter";
 import indexRouter from "@/routes/index.route";
+import appRouter from "@/routes/routes.config";
 import DrizzleSessionStore from "@/session/customSessionStore";
 import { doubleCsrfProtection } from "@/utils/csrf";
 import errorHandler from "@/utils/errorHandler";
