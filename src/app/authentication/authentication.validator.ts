@@ -35,8 +35,12 @@ export const UserRegisterSchema = z.object({
 });
 
 export const UserVerificationSchema = z.object({
-	email: validateEmail,
+	username: validateUsernameOrEmail,
 	otp: validatePositiveNumber("OTP")
+});
+
+export const UserReverificationSchema = z.object({
+	username: validateUsernameOrEmail
 });
 
 export const UserPasswordResetSchema = z.object({

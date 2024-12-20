@@ -7,6 +7,7 @@ import {
 	UserChangePasswordSchema,
 	UserPasswordResetSchema,
 	UserRegisterSchema,
+	UserReverificationSchema,
 	UserVerificationSchema,
 	UsernameLoginSchema,
 	UsernameLoginWithOTPSchema
@@ -102,10 +103,9 @@ export default class AuthenticationController extends ApiController {
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
 			}
 
-			const user = await this.authenticationService.findUserByUsernameOrEmail(
-				check.data.username,
-				check.data.password
-			);
+			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
+			await this.authenticationService.checkAccountVerification(user.data?.id!);
+			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 
 			const accessToken = await this.saveCookieToBrowser(user?.data!);
 
@@ -138,10 +138,9 @@ export default class AuthenticationController extends ApiController {
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
 			}
 
-			const user = await this.authenticationService.findUserByUsernameOrEmail(
-				check.data.username,
-				check.data.password
-			);
+			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
+			await this.authenticationService.checkAccountVerification(user.data?.id!);
+			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 
 			await this.otpService.verifyOTPFromDatabase(
 				user.data!,
@@ -218,6 +217,39 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
+	async verifySession() {
+		try {
+			return this.apiResponse.successResponse("Authorized");
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async checkAccountVerification() {
+		try {
+			const user = this.request.user;
+
+			if (!user?.emailVerified) {
+				this.request.session.destroy(err => {
+					if (err) {
+						return this.apiResponse.sendResponse({
+							status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+							message: "Error logging out"
+						});
+					}
+					this.response.clearCookie(this.jwtCookieName);
+					this.response.clearCookie(this.sessionCookieName);
+					return this.apiResponse.unauthorizedResponse("Unauthorized: Account is not verified");
+				});
+				return this.apiResponse.unauthorizedResponse("Unauthorized: Account is not verified");
+			}
+
+			return this.apiResponse.successResponse("User is verified");
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
 	async checkUser() {
 		try {
 			const { body } = this.request;
@@ -225,12 +257,12 @@ export default class AuthenticationController extends ApiController {
 			if (!check.success)
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
 
-			const user = await this.authenticationService.findUserByUsernameOrEmail(
-				check.data.username,
-				check.data.password
-			);
+			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
+
+			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 
 			if (check.data.otp) {
+				await this.authenticationService.checkAccountVerification(user.data?.id!);
 				const otp = await this.otpService.saveOTPToDatabase(user.data!, TOKEN_LIST.LOGIN_OTP);
 
 				if (otp) {
@@ -255,7 +287,7 @@ export default class AuthenticationController extends ApiController {
 			if (!check.success)
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
 
-			const user = await this.authenticationService.findUserByEmail(check.data.email);
+			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
 
 			await this.otpService.verifyOTPFromDatabase(
 				user.data!,
@@ -334,6 +366,36 @@ export default class AuthenticationController extends ApiController {
 			);
 
 			return this.apiResponse.sendResponse(response);
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async requestOTPForUnverifiedUser() {
+		try {
+			const { body } = this.request;
+			const check = UserReverificationSchema.safeParse(body);
+			if (!check.success)
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+
+			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
+
+			if (user.data?.emailVerified) return this.apiResponse.badResponse("User is already verified");
+
+			const otp = await this.otpService.saveOTPToDatabase(
+				user.data!,
+				TOKEN_LIST.EMAIL_VERIFICATION
+			);
+
+			if (otp) {
+				sendEmail({
+					email: user.data?.email!,
+					emailSubject: "Your account verification OTP",
+					template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+				});
+			}
+
+			return this.apiResponse.successResponse("OTP sent");
 		} catch (error) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
 		}

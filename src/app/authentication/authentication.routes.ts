@@ -13,9 +13,24 @@ export const authenticationRouter: Router = (() => {
 		new AuthenticationController(req, res).getSession();
 	});
 
+	// Session route
+	router.get("/session", authenticationMiddleware, (req, res) => {
+		new AuthenticationController(req, res).verifySession();
+	});
+
+	// Account verification route
+	router.get("/account-verification", authenticationMiddleware, (req, res) => {
+		new AuthenticationController(req, res).checkAccountVerification();
+	});
+
 	// Register route
 	router.post("/register", (req, res) => {
 		new AuthenticationController(req, res).register();
+	});
+
+	// Request OTP route
+	router.post("/request-otp", (req, res) => {
+		new AuthenticationController(req, res).requestOTPForUnverifiedUser();
 	});
 
 	// Local Authentication
@@ -64,7 +79,7 @@ export const authenticationRouter: Router = (() => {
 	});
 
 	// Logout route
-	router.post("/logout", (req, res) => {
+	router.post("/logout", authenticationMiddleware, (req, res) => {
 		new AuthenticationController(req, res).logout();
 	});
 
@@ -114,7 +129,7 @@ export const authenticationRouter: Router = (() => {
 				</style>
 			</head>
 			<body>
-				<a href="http://localhost:3000/api/auth/login/google" class="google-login-btn">
+				<a href="http://localhost:8080/api/auth/login/google" class="google-login-btn">
 					Sign in with Google
 				</a>
 			</body>

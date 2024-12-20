@@ -89,6 +89,9 @@ export default class AuthenticationService extends DrizzleService {
 						.set({ accessToken })
 						.where(eq(accounts.providerAccountId, data.id));
 
+					if (!checkUserExistence.emailVerified)
+						await this.accountVerification(checkUserExistence.id);
+
 					const { accounts: userAccounts, ...user } = checkUserExistence;
 
 					return ServiceResponse.createResponse(
@@ -133,7 +136,7 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async findUserByUsernameOrEmail(username: string, password: string) {
+	async findUserByUsernameOrEmail(username: string) {
 		try {
 			const inputType = AppHelpers.detectInputType(username);
 
@@ -141,20 +144,18 @@ export default class AuthenticationService extends DrizzleService {
 
 			if (inputType === "EMAIL") {
 				const user = await this.findUserByEmail(username, true);
-				await this.passwordChecker(password, user.data?.password!);
 				findUser = user.data!;
 				return ServiceResponse.createResponse(
 					status.HTTP_200_OK,
-					"User logged in successfully",
+					"User found successfully",
 					findUser as UserSchemaType
 				);
 			} else if (inputType === "USERNAME") {
 				const user = await this.findUserByUsername(username, true);
-				await this.passwordChecker(password, user.data?.password!);
 				findUser = user.data!;
 				return ServiceResponse.createResponse(
 					status.HTTP_200_OK,
-					"User logged in successfully",
+					"User found successfully",
 					findUser as UserSchemaType
 				);
 			}
@@ -304,7 +305,7 @@ export default class AuthenticationService extends DrizzleService {
 
 	async accountVerification(id: number) {
 		try {
-			const user = await this.db
+			await this.db
 				.update(users)
 				.set({
 					emailVerified: new Date()
@@ -312,6 +313,19 @@ export default class AuthenticationService extends DrizzleService {
 				.where(eq(users.id, id));
 
 			return ServiceResponse.createResponse(status.HTTP_200_OK, "User verified");
+		} catch (error) {
+			return ServiceResponse.createErrorResponse(error);
+		}
+	}
+
+	async checkAccountVerification(id: number) {
+		try {
+			const user = await this.findUserById(id);
+
+			if (!user.data?.emailVerified)
+				return ServiceResponse.createResponse(status.HTTP_400_BAD_REQUEST, "User is not verified");
+
+			return ServiceResponse.createResponse(status.HTTP_200_OK, "User is verified");
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
