@@ -15,6 +15,9 @@ const {
 		secure: process.env.NODE_ENV === "production"
 	},
 	size: 32, // The size of the generated tokens
+	errorConfig: {
+		message: "Invalid CSRF token"
+	},
 	getTokenFromRequest: req => req.headers["x-csrf-token"] // Get the token from the request
 });
 
