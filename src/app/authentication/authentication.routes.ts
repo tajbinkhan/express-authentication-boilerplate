@@ -8,14 +8,12 @@ import { authenticationMiddleware } from "@/middlewares/authentication.middlewar
 export const authenticationRouter: Router = (() => {
 	const router = express.Router();
 
-	router.get("/test", authenticationMiddleware, (req, res) => {
-		res.status(200).send("Test successful");
-	});
-
-	router.get("/me", (req, res) => {
+	// Get current user route
+	router.get("/me", authenticationMiddleware, (req, res) => {
 		new AuthenticationController(req, res).getSession();
 	});
 
+	// Register route
 	router.post("/register", (req, res) => {
 		new AuthenticationController(req, res).register();
 	});
@@ -23,6 +21,11 @@ export const authenticationRouter: Router = (() => {
 	// Local Authentication
 	router.post("/login", async (req, res) => {
 		new AuthenticationController(req, res).loginWithUsername();
+	});
+
+	// Local Authentication with OTP
+	router.post("/login/otp", async (req, res) => {
+		new AuthenticationController(req, res).loginWithUsernameAndOTP();
 	});
 
 	// Google Authentication
@@ -35,14 +38,34 @@ export const authenticationRouter: Router = (() => {
 		}
 	);
 
+	// Verify user route
+	router.post("/verify-user", (req, res) => {
+		new AuthenticationController(req, res).verifyUser();
+	});
+
+	// Check user route
+	router.post("/check-user", (req, res) => {
+		new AuthenticationController(req, res).checkUser();
+	});
+
+	// Password reset route
+	router.post("/reset-password", (req, res) => {
+		new AuthenticationController(req, res).resetPassword();
+	});
+
+	// Password reset confirmation route
+	router.post("/reset-password/confirm", (req, res) => {
+		new AuthenticationController(req, res).resetPasswordConfirm();
+	});
+
+	// Password change route
+	router.post("/change-password", authenticationMiddleware, (req, res) => {
+		new AuthenticationController(req, res).changePassword();
+	});
+
 	// Logout route
 	router.post("/logout", (req, res) => {
 		new AuthenticationController(req, res).logout();
-	});
-
-	// Session route
-	router.get("/session", authenticationMiddleware, (req, res) => {
-		new AuthenticationController(req, res).getSession();
 	});
 
 	// UI Routes

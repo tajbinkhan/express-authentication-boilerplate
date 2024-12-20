@@ -19,7 +19,6 @@
 		"source.fixAll.tslint": "explicit",
 		"source.organizeImports": "explicit"
 	},
-	"eslint.alwaysShowStatus": true,
 	// emmet
 	"emmet.triggerExpansionOnTab": true,
 	"emmet.includeLanguages": {

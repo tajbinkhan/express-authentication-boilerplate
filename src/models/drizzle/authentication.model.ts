@@ -1,5 +1,13 @@
 import { relations } from "drizzle-orm";
-import { integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	integer,
+	pgEnum,
+	pgTable,
+	serial,
+	text,
+	timestamp,
+	uniqueIndex
+} from "drizzle-orm/pg-core";
 
 import { timestamps } from "@/databases/drizzle/helpers";
 
@@ -32,7 +40,7 @@ export const users = pgTable("user", {
 	password: text("password"),
 	emailVerified: timestamp("email_verified", { withTimezone: true }),
 	image: text("image"),
-	role: ROLE_TYPE("role").notNull().default("SUBSCRIBER"),
+	role: ROLE_TYPE("role").default("SUBSCRIBER"),
 	...timestamps
 });
 
@@ -63,14 +71,19 @@ export const sessions = pgTable("session", {
 	...timestamps
 });
 
-export const verificationTokens = pgTable("verification_token", {
-	id: serial("id").primaryKey(),
-	identifier: text("identifier").notNull(),
-	token: text("token").notNull(),
-	tokenType: TOKEN_TYPE("token_type").notNull(),
-	expires: timestamp("expires", { withTimezone: true }).notNull(),
-	...timestamps
-});
+export const verificationToken = pgTable(
+	"verification_token",
+	{
+		identifier: text("identifier").notNull().unique(),
+		token: text("token").notNull(),
+		tokenType: TOKEN_TYPE("token_type").notNull(),
+		expires: timestamp("expires", { withTimezone: true }).notNull(),
+		...timestamps
+	},
+	table => ({
+		identifierTypeIdx: uniqueIndex("identifier_type_idx").on(table.identifier, table.tokenType)
+	})
+);
 
 // Relationships
 export const usersRelations = relations(users, ({ many }) => ({

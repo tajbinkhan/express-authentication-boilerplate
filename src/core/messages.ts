@@ -164,7 +164,9 @@ export const zodMessages = {
 			invalidLowerCase: (field: string) => `${field} must be at least one lower case.`,
 			invalidNumericCase: (field: string) => `${field} must be at least one number.`,
 			invalidUsername: (field: string) =>
-				`${field} must contain only letters, numbers, and underscores.`
+				`${field} must contain only letters, numbers, and underscores.`,
+			invalidUsernameOrEmail: (field: string) =>
+				`${field} must be a valid username or email address.`
 		}
 	}
 };

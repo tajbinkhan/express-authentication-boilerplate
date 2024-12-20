@@ -88,6 +88,26 @@ export const validateEmail = z
 	.min(1, zodMessages.error.required.fieldIsRequired("Email"))
 	.email(zodMessages.error.invalid.invalidEmail("Email"));
 
+export const validateUsernameOrEmail = z
+	.string({
+		required_error: zodMessages.error.required.fieldIsRequired("Username or email"),
+		invalid_type_error: zodMessages.error.invalid.invalidString("Username or email")
+	})
+	.min(1, zodMessages.error.required.fieldIsRequired("Username or email"))
+	.max(255, zodMessages.error.limit.numberMax("Username or email", 255))
+	.refine(value => {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		const usernameRegex = /^[a-zA-Z0-9_]*$/;
+
+		// Check if it's a valid email
+		if (value.includes("@")) {
+			return emailRegex.test(value);
+		}
+
+		// Check if it's a valid username
+		return usernameRegex.test(value) && value.length >= 1 && value.length <= 20;
+	}, zodMessages.error.invalid.invalidUsernameOrEmail("Username or email"));
+
 export const validatePassword = z
 	.string({
 		required_error: zodMessages.error.required.fieldIsRequired("Password")

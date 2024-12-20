@@ -4,8 +4,12 @@ import { Request, Response } from "express";
 import { encode } from "@/app/authentication/authentication.JWT";
 import AuthenticationService from "@/app/authentication/authentication.service";
 import {
+	UserChangePasswordSchema,
+	UserPasswordResetSchema,
 	UserRegisterSchema,
-	UsernameLoginSchema
+	UserVerificationSchema,
+	UsernameLoginSchema,
+	UsernameLoginWithOTPSchema
 } from "@/app/authentication/authentication.validator";
 
 import { ApiController } from "@/controllers/base/api.controller";
@@ -17,6 +21,7 @@ import { status } from "@/utils/statusCodes";
 export default class AuthenticationController extends ApiController {
 	protected authenticationService: AuthenticationService;
 	protected jwtCookieName: string;
+	protected sessionCookieName: string;
 
 	/**
 	 * Construct the controller
@@ -27,10 +32,11 @@ export default class AuthenticationController extends ApiController {
 	constructor(request: Request, response: Response) {
 		super(request, response);
 		this.authenticationService = new AuthenticationService();
-		this.jwtCookieName = process.env.SESSION_COOKIE_NAME;
+		this.jwtCookieName = process.env.JWT_COOKIE_NAME;
+		this.sessionCookieName = process.env.SESSION_COOKIE_NAME;
 	}
 
-	async saveCookieToBrowser(user: UserSchemaType) {
+	async saveCookieToBrowser(user: Omit<UserSchemaType, "password">) {
 		try {
 			const accessToken = await encode({
 				token: user
@@ -52,20 +58,19 @@ export default class AuthenticationController extends ApiController {
 		try {
 			const body = this.getReqBody();
 			const check = UserRegisterSchema.safeParse(body);
-			if (!check.success) {
+			if (!check.success)
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
-			}
 
-			const extendedData: Omit<UserSchemaType, "id" | "createdAt" | "updatedAt"> = {
+			const extendedData: Omit<UserSchemaType, "id" | "role" | "createdAt" | "updatedAt"> = {
 				...check.data,
 				image: null,
 				emailVerified: null,
-				name: null,
-				password: bcrypt.hashSync(check.data.password, 10),
-				role: "SUBSCRIBER"
+				password: bcrypt.hashSync(check.data.password, 10)
 			};
 
 			const user = await this.authenticationService.createUser(extendedData);
+
+			await this.authenticationService.requestRegisterOTP(user.data!);
 
 			return this.apiResponse.sendResponse(user);
 		} catch (error) {
@@ -81,26 +86,15 @@ export default class AuthenticationController extends ApiController {
 				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
 			}
 
-			const inputType = AppHelpers.detectInputType(check.data.username);
+			const user = await this.authenticationService.findUserByUsernameOrEmail(
+				check.data.username,
+				check.data.password
+			);
 
-			let findUser: any = null;
-
-			if (inputType === "EMAIL") {
-				const user = await this.authenticationService.findUserByEmail(check.data.username);
-				await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
-				findUser = user.data!;
-			} else if (inputType === "USERNAME") {
-				const user = await this.authenticationService.findUserByUsername(check.data.username);
-				await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
-				findUser = user.data!;
-			} else {
-				return this.apiResponse.badResponse("Invalid input type");
-			}
-
-			const accessToken = await this.saveCookieToBrowser(findUser);
+			const accessToken = await this.saveCookieToBrowser(user?.data!);
 
 			// Log the user in to establish session
-			this.request.login(findUser, err => {
+			this.request.login(user?.data!, err => {
 				if (err) {
 					return this.apiResponse.sendResponse({
 						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -108,10 +102,48 @@ export default class AuthenticationController extends ApiController {
 					});
 				}
 
-				const { password, ...user } = findUser;
+				const { password, ...userData } = user?.data!;
 
 				return this.apiResponse.successResponse("Login successful", {
-					user,
+					user: userData,
+					token: accessToken
+				});
+			});
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async loginWithUsernameAndOTP() {
+		try {
+			const body = this.getReqBody();
+			const check = UsernameLoginWithOTPSchema.safeParse(body);
+			if (!check.success) {
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+			}
+
+			const user = await this.authenticationService.findUserByUsernameOrEmail(
+				check.data.username,
+				check.data.password
+			);
+
+			await this.authenticationService.verifyLoginOTP(user.data!, check.data.otp);
+
+			const accessToken = await this.saveCookieToBrowser(user?.data!);
+
+			// Log the user in to establish session
+			this.request.login(user?.data!, err => {
+				if (err) {
+					return this.apiResponse.sendResponse({
+						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+						message: "Login failed"
+					});
+				}
+
+				const { password, ...userData } = user?.data!;
+
+				return this.apiResponse.successResponse("Login successful", {
+					user: userData,
 					token: accessToken
 				});
 			});
@@ -147,6 +179,7 @@ export default class AuthenticationController extends ApiController {
 					});
 				}
 				this.response.clearCookie(this.jwtCookieName);
+				this.response.clearCookie(this.sessionCookieName);
 				return this.apiResponse.successResponse("Logged out");
 			});
 		} catch (error) {
@@ -159,9 +192,104 @@ export default class AuthenticationController extends ApiController {
 			const user = this.request.user;
 			if (!user) return this.apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
 
-			const { password, ...userData } = user;
+			return this.apiResponse.successResponse("Authorized", user);
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
 
-			return this.apiResponse.successResponse("Authorized", userData);
+	async checkUser() {
+		try {
+			const { body } = this.request;
+			const check = UsernameLoginSchema.safeParse(body);
+			if (!check.success)
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+
+			const user = await this.authenticationService.findUserByUsernameOrEmail(
+				check.data.username,
+				check.data.password
+			);
+
+			if (check.data.otp) {
+				await this.authenticationService.requestLoginOTP(user.data!);
+			}
+
+			return this.apiResponse.successResponse("User found");
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async verifyUser() {
+		try {
+			const { body } = this.request;
+			const check = UserVerificationSchema.safeParse(body);
+			if (!check.success)
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+
+			const user = await this.authenticationService.findUserByEmail(check.data.email);
+
+			await this.authenticationService.verifyRegisterOTP(user.data!, check.data.otp);
+			await this.authenticationService.accountVerification(user.data?.id!);
+
+			return this.apiResponse.successResponse("User verified");
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async resetPassword() {
+		try {
+			const { body } = this.request;
+			if (!body.email) return this.apiResponse.badResponse("Email is required");
+
+			const user = await this.authenticationService.findUserByEmail(body.email);
+
+			await this.authenticationService.requestResetPasswordOTP(user.data!);
+
+			return this.apiResponse.successResponse("Password reset OTP sent");
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async resetPasswordConfirm() {
+		try {
+			const { body } = this.request;
+			const check = UserPasswordResetSchema.safeParse(body);
+			if (!check.success)
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+
+			const user = await this.authenticationService.findUserByEmail(check.data.email);
+
+			await this.authenticationService.verifyResetPasswordOTP(user.data!, check.data.otp);
+			await this.authenticationService.changePassword(user.data?.id!, check.data.password);
+
+			return this.apiResponse.successResponse("User password reset");
+		} catch (error) {
+			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
+		}
+	}
+
+	async changePassword() {
+		try {
+			const { body, user: UserData } = this.request;
+			const check = UserChangePasswordSchema.safeParse(body);
+			if (!check.success)
+				return this.apiResponse.badResponse(check.error.errors.map(err => err.message).join(", "));
+
+			const user = await this.authenticationService.findUserById(UserData?.id!, true);
+
+			await this.authenticationService.passwordChecker(
+				check.data.oldPassword,
+				user.data?.password!
+			);
+			const response = await this.authenticationService.changePassword(
+				user.data?.id!,
+				check.data.newPassword
+			);
+
+			return this.apiResponse.sendResponse(response);
 		} catch (error) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
 		}

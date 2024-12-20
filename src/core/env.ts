@@ -2,6 +2,20 @@ import { z } from "zod";
 
 import { validateString } from "@/validators/commonRules";
 
+export const googleEnvSchema = z.object({
+	GOOGLE_CLIENT_ID: validateString("GOOGLE_CLIENT_ID"),
+	GOOGLE_CLIENT_SECRET: validateString("GOOGLE_CLIENT_SECRET"),
+	GOOGLE_CALLBACK_URL: validateString("GOOGLE_CALLBACK_URL")
+});
+
+const emailEnvSchema = z.object({
+	EMAIL_SERVER_HOST: validateString("EMAIL_SERVER_HOST"),
+	EMAIL_SERVER_PORT: validateString("EMAIL_SERVER_PORT"),
+	EMAIL_SERVER_USER: validateString("EMAIL_SERVER_USER"),
+	EMAIL_SERVER_PASSWORD: validateString("EMAIL_SERVER_PASSWORD"),
+	EMAIL_FROM: validateString("EMAIL_FROM")
+});
+
 export const envSchema = z.object({
 	DATABASE_URL: validateString("DATABASE_URL"),
 	PORT: validateString("PORT").refine(value => !isNaN(Number(value)), "PORT must be a number"),
@@ -10,11 +24,11 @@ export const envSchema = z.object({
 		value => ["development", "production"].includes(value),
 		"NODE_ENV must be either 'development' or 'production'"
 	),
+	JWT_COOKIE_NAME: validateString("JWT_COOKIE_NAME"),
 	SESSION_COOKIE_NAME: validateString("SESSION_COOKIE_NAME"),
-	GOOGlE_CLIENT_ID: validateString("GOOGlE_CLIENT_ID"),
-	GOOGLE_CLIENT_SECRET: validateString("GOOGLE_CLIENT_SECRET"),
-	GOOGLE_CALLBACK_URL: validateString("GOOGLE_CALLBACK_URL"),
-	APP_URL: validateString("APP_URL")
+	APP_URL: validateString("APP_URL"),
+	...googleEnvSchema.shape,
+	...emailEnvSchema.shape
 });
 
 const Env = envSchema.safeParse(process.env);
