@@ -1,6 +1,6 @@
 import { doubleCsrf } from "csrf-csrf";
 
-import AppHelpers from "@/utils/appHelpers";
+import { csrfTimeout } from "@/core/constants";
 
 const {
 	generateToken, // Use this in your routes to generate tokens
@@ -11,7 +11,7 @@ const {
 	getSecret: () => process.env.SECRET, // Secret for generating tokens
 	cookieName: "csrf-token", // Cookie name for the token
 	cookieOptions: {
-		maxAge: AppHelpers.csrfTimeout,
+		maxAge: csrfTimeout,
 		secure: process.env.NODE_ENV === "production"
 	},
 	size: 32, // The size of the generated tokens

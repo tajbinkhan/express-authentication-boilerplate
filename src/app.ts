@@ -7,15 +7,15 @@ import helmet from "helmet";
 import passport from "passport";
 
 import appRouter from "@/api";
+// Passport Strategies
+import { sessionTimeout } from "@/core/constants";
 import { corsOptions } from "@/cors";
 import appLogger from "@/logger";
-// Passport Strategies
 import "@/passport/passportCustom";
 import "@/passport/passportGoogle";
 import appRateLimiter from "@/rateLimiter";
 import indexRouter from "@/routes/index.route";
 import DrizzleSessionStore from "@/session/customSessionStore";
-import AppHelpers from "@/utils/appHelpers";
 import { doubleCsrfProtection } from "@/utils/csrf";
 import errorHandler from "@/utils/errorHandler";
 
@@ -55,7 +55,7 @@ app.use(
 		store: new DrizzleSessionStore(),
 		rolling: true,
 		cookie: {
-			maxAge: AppHelpers.sessionTimeout
+			maxAge: sessionTimeout
 		}
 	})
 );

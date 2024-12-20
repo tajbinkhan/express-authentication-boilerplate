@@ -15,10 +15,10 @@
 		"strict": true,
 		"noPropertyAccessFromIndexSignature": false,
 		"skipLibCheck": true,
-		"typeRoots": ["./node_modules/@types", "./src/types"],
+		"typeRoots": ["./node_modules/@types", "types"],
 		"sourceMap": true,
 		"resolveJsonModule": true
 	},
-	"include": ["**/*.ts", "src/types/express", "build.js"],
+	"include": ["**/*.ts", "types/express", "build.js"],
 	"exclude": ["node_modules"]
 }

@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import { SessionData, Store } from "express-session";
 
+import { sessionTimeout } from "@/core/constants";
 import db from "@/databases/drizzle/connection";
 import { sessions } from "@/models/drizzle/authentication.model";
-import AppHelpers from "@/utils/appHelpers";
 
 interface ExtendedSessionData extends SessionData {
 	passport?: {
@@ -12,13 +12,6 @@ interface ExtendedSessionData extends SessionData {
 }
 
 export default class DrizzleSessionStore extends Store {
-	private sessionTimeout: number;
-
-	constructor() {
-		super();
-		this.sessionTimeout = AppHelpers.sessionTimeout;
-	}
-
 	async get(id: string, callback: (err: any, session?: SessionData | null) => void): Promise<void> {
 		try {
 			const result = await db.select().from(sessions).where(eq(sessions.sessionId, id)).execute();
@@ -50,7 +43,7 @@ export default class DrizzleSessionStore extends Store {
 			}
 
 			const sessionString = JSON.stringify(session);
-			const expire = session.cookie.expires || new Date(Date.now() + this.sessionTimeout);
+			const expire = session.cookie.expires || new Date(Date.now() + sessionTimeout);
 
 			// get session user from cookie
 			const userId = session?.passport?.user || null;
@@ -91,7 +84,7 @@ export default class DrizzleSessionStore extends Store {
 
 	async touch(id: string, session: SessionData, callback?: () => void): Promise<void> {
 		try {
-			const expire = session.cookie.expires || new Date(Date.now() + this.sessionTimeout);
+			const expire = session.cookie.expires || new Date(Date.now() + sessionTimeout);
 
 			await db
 				.update(sessions)

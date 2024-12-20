@@ -2,10 +2,10 @@ import bcrypt from "bcrypt";
 import { and, eq } from "drizzle-orm";
 import { Profile as GoogleUserProfile } from "passport-google-oauth20";
 
+import { sessionTimeout } from "@/core/constants";
 import DrizzleService from "@/databases/drizzle/service";
 import { UserSchemaType } from "@/databases/drizzle/types";
-import { TOKEN_LIST, accounts, users } from "@/models/drizzle/authentication.model";
-import sendEmail from "@/service/emailService";
+import { accounts, users } from "@/models/drizzle/authentication.model";
 import OTPEmailService from "@/service/otpService";
 import AppHelpers from "@/utils/appHelpers";
 import { ServiceResponse } from "@/utils/serviceApi";
@@ -51,7 +51,7 @@ export default class AuthenticationService extends DrizzleService {
 					providerAccountId: data.id,
 					accessToken: accessToken,
 					refreshToken: null,
-					expiresAt: AppHelpers.sessionTimeout,
+					expiresAt: sessionTimeout,
 					tokenType: "access_token",
 					scope: "profile",
 					idToken: data.id,
@@ -329,99 +329,6 @@ export default class AuthenticationService extends DrizzleService {
 				.where(eq(users.id, id));
 
 			return ServiceResponse.createResponse(status.HTTP_200_OK, "Password changed successfully");
-		} catch (error) {
-			return ServiceResponse.createErrorResponse(error);
-		}
-	}
-
-	async requestLoginOTP(user: Partial<UserSchemaType>) {
-		try {
-			const otp = await this.otpService.saveOTPToDatabase(user, TOKEN_LIST.LOGIN_OTP);
-
-			if (otp) {
-				sendEmail({
-					email: user.email!,
-					emailSubject: "Login OTP",
-					template: `
-					<p>Your OTP is: <strong>${otp}</strong></p>
-				`
-				});
-			}
-
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "OTP sent successfully");
-		} catch (error) {
-			return ServiceResponse.createErrorResponse(error);
-		}
-	}
-
-	async verifyLoginOTP(user: Partial<UserSchemaType>, otp: number) {
-		try {
-			await this.otpService.verifyOTPFromDatabase(user, String(otp), TOKEN_LIST.LOGIN_OTP);
-			await this.otpService.deleteOTPFromDatabase(user, TOKEN_LIST.LOGIN_OTP);
-
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "OTP verified successfully");
-		} catch (error) {
-			return ServiceResponse.createErrorResponse(error);
-		}
-	}
-
-	async requestRegisterOTP(user: Partial<UserSchemaType>) {
-		try {
-			const otp = await this.otpService.saveOTPToDatabase(user, TOKEN_LIST.EMAIL_VERIFICATION);
-
-			if (otp) {
-				sendEmail({
-					email: user.email!,
-					emailSubject: "Email Verification OTP",
-					template: `
-					<p>Your OTP is: <strong>${otp}</strong></p>
-				`
-				});
-			}
-
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "OTP sent successfully");
-		} catch (error) {
-			return ServiceResponse.createErrorResponse(error);
-		}
-	}
-
-	async verifyRegisterOTP(user: Partial<UserSchemaType>, otp: number) {
-		try {
-			await this.otpService.verifyOTPFromDatabase(user, String(otp), TOKEN_LIST.EMAIL_VERIFICATION);
-			await this.otpService.deleteOTPFromDatabase(user, TOKEN_LIST.EMAIL_VERIFICATION);
-
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "OTP verified successfully");
-		} catch (error) {
-			return ServiceResponse.createErrorResponse(error);
-		}
-	}
-
-	async requestResetPasswordOTP(user: Partial<UserSchemaType>) {
-		try {
-			const otp = await this.otpService.saveOTPToDatabase(user, TOKEN_LIST.PASSWORD_RESET);
-
-			if (otp) {
-				sendEmail({
-					email: user.email!,
-					emailSubject: "Reset Password OTP",
-					template: `
-					<p>Your OTP is: <strong>${otp}</strong></p>
-				`
-				});
-			}
-
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "OTP sent successfully");
-		} catch (error) {
-			return ServiceResponse.createErrorResponse(error);
-		}
-	}
-
-	async verifyResetPasswordOTP(user: Partial<UserSchemaType>, otp: number) {
-		try {
-			await this.otpService.verifyOTPFromDatabase(user, String(otp), TOKEN_LIST.PASSWORD_RESET);
-			await this.otpService.deleteOTPFromDatabase(user, TOKEN_LIST.PASSWORD_RESET);
-
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "OTP verified successfully");
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}

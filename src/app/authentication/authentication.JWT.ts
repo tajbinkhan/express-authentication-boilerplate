@@ -1,10 +1,10 @@
 import { hkdf } from "@panva/hkdf";
 import { EncryptJWT, JWTPayload, base64url, calculateJwkThumbprint, jwtDecrypt } from "jose";
 
-import AppHelpers from "@/utils/appHelpers";
+import { sessionTimeout } from "@/core/constants";
 
 type Awaitable<T> = T | PromiseLike<T>;
-const DEFAULT_MAX_AGE = AppHelpers.sessionTimeout;
+const DEFAULT_MAX_AGE = sessionTimeout;
 
 const now = () => (Date.now() / 1000) | 0;
 

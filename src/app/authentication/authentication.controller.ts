@@ -13,13 +13,17 @@ import {
 } from "@/app/authentication/authentication.validator";
 
 import { ApiController } from "@/controllers/base/api.controller";
+import { sessionTimeout } from "@/core/constants";
 import { UserSchemaType } from "@/databases/drizzle/types";
-import AppHelpers from "@/utils/appHelpers";
+import { TOKEN_LIST } from "@/models/drizzle/authentication.model";
+import sendEmail from "@/service/emailService";
+import OTPService from "@/service/otpService";
 import { ServiceApiResponse } from "@/utils/serviceApi";
 import { status } from "@/utils/statusCodes";
 
 export default class AuthenticationController extends ApiController {
 	protected authenticationService: AuthenticationService;
+	protected otpService: OTPService;
 	protected jwtCookieName: string;
 	protected sessionCookieName: string;
 
@@ -32,6 +36,7 @@ export default class AuthenticationController extends ApiController {
 	constructor(request: Request, response: Response) {
 		super(request, response);
 		this.authenticationService = new AuthenticationService();
+		this.otpService = new OTPService();
 		this.jwtCookieName = process.env.JWT_COOKIE_NAME;
 		this.sessionCookieName = process.env.SESSION_COOKIE_NAME;
 	}
@@ -44,7 +49,7 @@ export default class AuthenticationController extends ApiController {
 
 			this.response.cookie(this.jwtCookieName, accessToken, {
 				httpOnly: true,
-				maxAge: AppHelpers.sessionTimeout,
+				maxAge: sessionTimeout,
 				sameSite: "strict"
 			});
 
@@ -70,7 +75,18 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.createUser(extendedData);
 
-			await this.authenticationService.requestRegisterOTP(user.data!);
+			const otp = await this.otpService.saveOTPToDatabase(
+				user.data!,
+				TOKEN_LIST.EMAIL_VERIFICATION
+			);
+
+			if (otp) {
+				sendEmail({
+					email: user.data?.email!,
+					emailSubject: "Your account verification OTP",
+					template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+				});
+			}
 
 			return this.apiResponse.sendResponse(user);
 		} catch (error) {
@@ -127,7 +143,11 @@ export default class AuthenticationController extends ApiController {
 				check.data.password
 			);
 
-			await this.authenticationService.verifyLoginOTP(user.data!, check.data.otp);
+			await this.otpService.verifyOTPFromDatabase(
+				user.data!,
+				String(check.data.otp),
+				TOKEN_LIST.LOGIN_OTP
+			);
 
 			const accessToken = await this.saveCookieToBrowser(user?.data!);
 
@@ -211,7 +231,15 @@ export default class AuthenticationController extends ApiController {
 			);
 
 			if (check.data.otp) {
-				await this.authenticationService.requestLoginOTP(user.data!);
+				const otp = await this.otpService.saveOTPToDatabase(user.data!, TOKEN_LIST.LOGIN_OTP);
+
+				if (otp) {
+					sendEmail({
+						email: user.data?.email!,
+						emailSubject: "Login OTP",
+						template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+					});
+				}
 			}
 
 			return this.apiResponse.successResponse("User found");
@@ -229,7 +257,11 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserByEmail(check.data.email);
 
-			await this.authenticationService.verifyRegisterOTP(user.data!, check.data.otp);
+			await this.otpService.verifyOTPFromDatabase(
+				user.data!,
+				String(check.data.otp),
+				TOKEN_LIST.EMAIL_VERIFICATION
+			);
 			await this.authenticationService.accountVerification(user.data?.id!);
 
 			return this.apiResponse.successResponse("User verified");
@@ -245,7 +277,15 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserByEmail(body.email);
 
-			await this.authenticationService.requestResetPasswordOTP(user.data!);
+			const otp = await this.otpService.saveOTPToDatabase(user.data!, TOKEN_LIST.PASSWORD_RESET);
+
+			if (otp) {
+				sendEmail({
+					email: user.data?.email!,
+					emailSubject: "Your password reset OTP",
+					template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+				});
+			}
 
 			return this.apiResponse.successResponse("Password reset OTP sent");
 		} catch (error) {
@@ -262,7 +302,11 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserByEmail(check.data.email);
 
-			await this.authenticationService.verifyResetPasswordOTP(user.data!, check.data.otp);
+			await this.otpService.verifyOTPFromDatabase(
+				user.data!,
+				String(check.data.otp),
+				TOKEN_LIST.PASSWORD_RESET
+			);
 			await this.authenticationService.changePassword(user.data?.id!, check.data.password);
 
 			return this.apiResponse.successResponse("User password reset");

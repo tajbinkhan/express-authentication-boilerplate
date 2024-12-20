@@ -1,12 +1,14 @@
 import { CorsOptions } from "cors";
 
+import { origins } from "@/core/constants";
+
 // CORS configuration with options
 export const corsOptions: CorsOptions = {
 	// Allow specific origin
 	// origin: "https://yourdomain.com",
 
 	// Allow multiple origins
-	origin: ["http://localhost:3000", "https://domain2.com"],
+	origin: origins,
 
 	// Optional: Allow all origins (use with caution)
 	// origin: '*',
