@@ -85,7 +85,12 @@ export default class AuthenticationController extends ApiController {
 				sendEmail({
 					email: user.data?.email!,
 					emailSubject: "Your account verification OTP",
-					template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+					template: "otpEmailTemplate",
+					data: {
+						username: user.data?.username,
+						otp,
+						otpExpirationTime: 5
+					}
 				});
 			}
 
@@ -269,7 +274,12 @@ export default class AuthenticationController extends ApiController {
 					sendEmail({
 						email: user.data?.email!,
 						emailSubject: "Login OTP",
-						template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+						template: "otpEmailTemplate",
+						data: {
+							username: user.data?.username,
+							otp,
+							otpExpirationTime: 5
+						}
 					});
 				}
 			}
@@ -315,7 +325,12 @@ export default class AuthenticationController extends ApiController {
 				sendEmail({
 					email: user.data?.email!,
 					emailSubject: "Your password reset OTP",
-					template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+					template: "otpEmailTemplate",
+					data: {
+						username: user.data?.username,
+						otp,
+						otpExpirationTime: 5
+					}
 				});
 			}
 
@@ -391,7 +406,12 @@ export default class AuthenticationController extends ApiController {
 				sendEmail({
 					email: user.data?.email!,
 					emailSubject: "Your account verification OTP",
-					template: `<p>Your OTP is: <strong>${otp}</strong></p>`
+					template: "otpEmailTemplate",
+					data: {
+						username: user.data?.username,
+						otp,
+						otpExpirationTime: 5
+					}
 				});
 			}
 

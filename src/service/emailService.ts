@@ -1,9 +1,16 @@
+import ejs from "ejs";
 import nodemailer from "nodemailer";
+import path from "path";
+
+const __dirname = process.cwd();
+console.log("Filename: ", __dirname);
+// const __dirname = path.dirname(__filename);
 
 interface EmailService {
 	email: string;
 	emailSubject: string;
 	template: string;
+	data?: any;
 	user?: string;
 	password?: string;
 	emailFrom?: string;
@@ -13,6 +20,7 @@ const sendEmail = async ({
 	email,
 	emailSubject,
 	template,
+	data,
 	user = process.env.EMAIL_SERVER_USER,
 	password = process.env.EMAIL_SERVER_PASSWORD,
 	emailFrom = process.env.EMAIL_FROM
@@ -28,13 +36,21 @@ const sendEmail = async ({
 		secure: false
 	});
 
+	const html = await ejs.renderFile(
+		path.join(__dirname, "src/templates", `${template}.ejs`),
+		data,
+		{
+			async: true
+		}
+	);
+
 	// Email content
 	const mailOptions = {
 		from: emailFrom,
 		to: email,
 		reply_to: emailFrom,
 		subject: emailSubject,
-		html: template
+		html
 	};
 
 	// Send the email
