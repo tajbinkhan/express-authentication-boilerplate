@@ -3,7 +3,6 @@ import nodemailer from "nodemailer";
 import path from "path";
 
 const __dirname = process.cwd();
-console.log("Filename: ", __dirname);
 // const __dirname = path.dirname(__filename);
 
 interface EmailService {
