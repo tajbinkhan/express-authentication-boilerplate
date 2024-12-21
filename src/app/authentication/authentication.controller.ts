@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 
-import { encode } from "@/app/authentication/authentication.JWT";
 import AuthenticationService from "@/app/authentication/authentication.service";
 import {
 	UserChangePasswordSchema,
@@ -14,9 +13,9 @@ import {
 } from "@/app/authentication/authentication.validator";
 
 import { ApiController } from "@/controllers/base/api.controller";
-import { sessionTimeout } from "@/core/constants";
 import { UserSchemaType } from "@/databases/drizzle/types";
 import { TOKEN_LIST } from "@/models/drizzle/authentication.model";
+import CookieService from "@/service/cookieService";
 import sendEmail from "@/service/emailService";
 import OTPService from "@/service/otpService";
 import { ServiceApiResponse } from "@/utils/serviceApi";
@@ -25,8 +24,7 @@ import { status } from "@/utils/statusCodes";
 export default class AuthenticationController extends ApiController {
 	protected authenticationService: AuthenticationService;
 	protected otpService: OTPService;
-	protected jwtCookieName: string;
-	protected sessionCookieName: string;
+	protected cookieService: CookieService;
 
 	/**
 	 * Construct the controller
@@ -38,26 +36,7 @@ export default class AuthenticationController extends ApiController {
 		super(request, response);
 		this.authenticationService = new AuthenticationService();
 		this.otpService = new OTPService();
-		this.jwtCookieName = process.env.JWT_COOKIE_NAME;
-		this.sessionCookieName = process.env.SESSION_COOKIE_NAME;
-	}
-
-	async saveCookieToBrowser(user: Omit<UserSchemaType, "password">) {
-		try {
-			const accessToken = await encode({
-				token: user
-			});
-
-			this.response.cookie(this.jwtCookieName, accessToken, {
-				httpOnly: true,
-				maxAge: sessionTimeout,
-				sameSite: "strict"
-			});
-
-			return Promise.resolve(accessToken);
-		} catch (error) {
-			return Promise.resolve(null);
-		}
+		this.cookieService = new CookieService(request, response);
 	}
 
 	async register() {
@@ -112,7 +91,9 @@ export default class AuthenticationController extends ApiController {
 			await this.authenticationService.checkAccountVerification(user.data?.id!);
 			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 
-			const accessToken = await this.saveCookieToBrowser(user?.data!);
+			const { password, ...userData } = user.data!;
+
+			const accessToken = await this.cookieService.saveCookieToBrowser(userData);
 
 			// Log the user in to establish session
 			this.request.login(user?.data!, err => {
@@ -147,13 +128,15 @@ export default class AuthenticationController extends ApiController {
 			await this.authenticationService.checkAccountVerification(user.data?.id!);
 			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
 
+			const { password, ...userData } = user.data!;
+
 			await this.otpService.verifyOTPFromDatabase(
-				user.data!,
+				userData,
 				String(check.data.otp),
 				TOKEN_LIST.LOGIN_OTP
 			);
 
-			const accessToken = await this.saveCookieToBrowser(user?.data!);
+			const accessToken = await this.cookieService.saveCookieToBrowser(userData);
 
 			// Log the user in to establish session
 			this.request.login(user?.data!, err => {
@@ -180,7 +163,7 @@ export default class AuthenticationController extends ApiController {
 		try {
 			const user = this.request.user;
 
-			await this.saveCookieToBrowser(user!);
+			await this.cookieService.saveCookieToBrowser(user!);
 
 			return this.response.redirect(process.env.APP_URL);
 
@@ -202,8 +185,7 @@ export default class AuthenticationController extends ApiController {
 						message: "Error logging out"
 					});
 				}
-				this.response.clearCookie(this.jwtCookieName);
-				this.response.clearCookie(this.sessionCookieName);
+				this.cookieService.clearCookieFromBrowser();
 				return this.apiResponse.successResponse("Logged out");
 			});
 		} catch (error) {
@@ -242,8 +224,7 @@ export default class AuthenticationController extends ApiController {
 							message: "Error logging out"
 						});
 					}
-					this.response.clearCookie(this.jwtCookieName);
-					this.response.clearCookie(this.sessionCookieName);
+					this.cookieService.clearCookieFromBrowser();
 					return this.apiResponse.unauthorizedResponse("Unauthorized: Account is not verified");
 				});
 				return this.apiResponse.unauthorizedResponse("Unauthorized: Account is not verified");

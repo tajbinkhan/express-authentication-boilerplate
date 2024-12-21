@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { decode } from "@/app/authentication/authentication.JWT";
 
+import CookieService from "@/service/cookieService";
 import { ApiResponse } from "@/utils/serviceApi";
 
 const jwtTokenName = process.env.JWT_COOKIE_NAME;
@@ -38,6 +39,10 @@ export const authenticationMiddleware = async (
 			apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
 			return;
 		}
+
+		const { iat, jti, exp, password, ...rest } = decodeToken;
+		const cookieService = new CookieService(req, res);
+		await cookieService.saveCookieToBrowser(rest as any);
 
 		next();
 	} catch (error) {

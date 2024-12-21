@@ -91,6 +91,8 @@ export default class OTPService extends DrizzleService {
 				return ServiceResponse.createResponse(status.HTTP_400_BAD_REQUEST, "OTP expired");
 			}
 
+			await this.deleteOTPFromDatabase(user, tokenType);
+
 			return Promise.resolve(true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
