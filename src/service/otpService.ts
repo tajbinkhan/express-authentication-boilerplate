@@ -8,6 +8,37 @@ import { ServiceResponse } from "@/utils/serviceApi";
 import { status } from "@/utils/statusCodes";
 
 export default class OTPService extends DrizzleService {
+	private async limitOTPRequest(
+		user: Partial<UserSchemaType>,
+		tokenType: TokenType,
+		timeLimit: number = 5
+	) {
+		try {
+			const otpRequestCount = await this.db.query.verificationToken.findFirst({
+				where: and(
+					eq(verificationToken.identifier, user.email!),
+					eq(verificationToken.tokenType, tokenType)
+				)
+			});
+
+			const currentMinute = new Date().getTime();
+			const otpRequestUpdateTime = new Date(otpRequestCount?.updatedAt!).getTime();
+			const timeDifference = currentMinute - otpRequestUpdateTime;
+			// Convert it to human readable time
+			const timeDifferenceInMinutes = Math.floor(timeDifference / 60000);
+			console.log("Time difference in minutes: ", timeDifferenceInMinutes);
+
+			if (otpRequestCount && timeDifferenceInMinutes < timeLimit) {
+				const message = `You can only request OTP per ${timeLimit} minute(s). Please wait for ${timeLimit - timeDifferenceInMinutes} minute(s)`;
+				return ServiceResponse.createResponse(status.HTTP_429_TOO_MANY_REQUESTS, message);
+			}
+
+			return Promise.resolve(true);
+		} catch (error) {
+			return ServiceResponse.createErrorResponse(error);
+		}
+	}
+
 	async saveOTPToDatabase(
 		user: Partial<UserSchemaType>,
 		tokenType: TokenType,
@@ -16,6 +47,8 @@ export default class OTPService extends DrizzleService {
 		try {
 			if (!user.email)
 				return ServiceResponse.createResponse(status.HTTP_404_NOT_FOUND, "Email is not registered");
+
+			await this.limitOTPRequest(user, tokenType);
 
 			const generatedOTP = AppHelpers.OTPGenerator();
 			await this.db
