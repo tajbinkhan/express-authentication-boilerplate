@@ -8,7 +8,5 @@ export default defineConfig({
 	define: {
 		"process.env.NODE_ENV": "'production'"
 	},
-	loader: {
-		".ejs": "copy"
-	}
+	loader: { ".ejs": "copy" }
 });
