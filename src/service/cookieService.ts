@@ -4,6 +4,7 @@ import { encode } from "@/app/authentication/authentication.JWT";
 
 import { sessionTimeout } from "@/core/constants";
 import { UserSchemaType } from "@/databases/drizzle/types";
+import AppHelpers from "@/utils/appHelpers";
 
 export default class CookieService {
 	protected request: Request;
@@ -27,7 +28,11 @@ export default class CookieService {
 			this.response.cookie(this.jwtCookieName, accessToken, {
 				httpOnly: true,
 				maxAge: sessionTimeout,
-				sameSite: "strict"
+				sameSite: AppHelpers.sameSiteCookieConfig().sameSite,
+				secure: AppHelpers.sameSiteCookieConfig().secure,
+				...(AppHelpers.sameSiteCookieConfig().domain && {
+					domain: AppHelpers.sameSiteCookieConfig().domain
+				})
 			});
 
 			return Promise.resolve(accessToken);

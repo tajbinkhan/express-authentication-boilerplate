@@ -16,8 +16,9 @@ import appRateLimiter from "@/rateLimiter";
 import indexRouter from "@/routes/index.route";
 import appRouter from "@/routes/routes.config";
 import DrizzleSessionStore from "@/session/customSessionStore";
+import AppHelpers from "@/utils/appHelpers";
 import { doubleCsrfProtection } from "@/utils/csrf";
-import errorHandler from "@/utils/errorHandler";
+import { notFoundHandler, serverErrorHandler } from "@/utils/errorHandler";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ appRateLimiter(app);
  * This is used to store session data
  * This is used for authentication
  */
+app.set("trust proxy", 1);
 app.use(
 	session({
 		name: "session-id",
@@ -53,9 +55,13 @@ app.use(
 		saveUninitialized: false,
 		resave: false,
 		store: new DrizzleSessionStore(),
-		rolling: true,
 		cookie: {
-			maxAge: sessionTimeout
+			sameSite: AppHelpers.sameSiteCookieConfig().sameSite,
+			secure: AppHelpers.sameSiteCookieConfig().secure,
+			maxAge: sessionTimeout,
+			...(AppHelpers.sameSiteCookieConfig().domain && {
+				domain: AppHelpers.sameSiteCookieConfig().domain
+			})
 		}
 	})
 );
@@ -84,10 +90,17 @@ indexRouter(app);
 appRouter(app);
 
 /**
+ * Not found handler
+ * This will handle all routes that are not found
+ * This is to prevent the server from crashing
+ */
+notFoundHandler(app);
+
+/**
  * Error handler
  * This will handle all errors in the server
  * This is to prevent the server from crashing
  */
-errorHandler(app);
+serverErrorHandler(app);
 
 export default app;

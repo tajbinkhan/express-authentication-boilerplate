@@ -1,4 +1,11 @@
 import * as crypto from "crypto";
+import { CookieOptions } from "express";
+
+interface SameSiteCookieConfig {
+	sameSite: CookieOptions["sameSite"];
+	secure: boolean;
+	domain?: string;
+}
 
 export default class AppHelpers {
 	/**
@@ -92,5 +99,65 @@ export default class AppHelpers {
 	static OTPExpiry(expiryTime: number = 5): Date {
 		const now = new Date();
 		return new Date(now.getTime() + expiryTime * 60000);
+	}
+
+	/**
+	 * Determines the appropriate SameSite and secure settings for cookies based on the provided URLs.
+	 * @returns The SameSite and secure settings for cookies.
+	 */
+	static sameSiteCookieConfig(): SameSiteCookieConfig {
+		try {
+			const appUrl = process.env.APP_URL;
+			const apiUrl = process.env.API_URL;
+
+			const appUrlObj = new URL(appUrl);
+			const apiUrlObj = new URL(apiUrl);
+
+			// Extract the base domain (excluding subdomains)
+			const getBaseDomain = (hostname: string) => {
+				const parts = hostname.split(".");
+				return parts.slice(-2).join(".");
+			};
+
+			const appBaseDomain = getBaseDomain(appUrlObj.hostname);
+			const apiBaseDomain = getBaseDomain(apiUrlObj.hostname);
+
+			const isSecure = appUrlObj.protocol === "https:" || apiUrlObj.protocol === "https:";
+
+			// Determine domain value - only set if on same base domain
+			let domain: string | undefined;
+			if (appBaseDomain === apiBaseDomain && !appUrlObj.hostname.includes("localhost")) {
+				domain = "." + appBaseDomain;
+			}
+
+			// For localhost, set the exact hostname
+			if (apiUrlObj.hostname.includes("localhost")) {
+				domain = apiUrlObj.hostname;
+			}
+
+			// Determine sameSite value
+			let sameSite: CookieOptions["sameSite"];
+			if (appBaseDomain === apiBaseDomain) {
+				sameSite = "strict";
+			} else if (
+				appUrlObj.hostname.includes("localhost") &&
+				apiUrlObj.hostname.includes("localhost")
+			) {
+				sameSite = "lax";
+			} else {
+				sameSite = "none";
+			}
+
+			return {
+				sameSite,
+				secure: isSecure,
+				domain
+			};
+		} catch (error) {
+			return {
+				sameSite: "lax",
+				secure: true
+			};
+		}
 	}
 }

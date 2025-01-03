@@ -26,7 +26,9 @@ export const envSchema = z.object({
 	),
 	JWT_COOKIE_NAME: validateString("JWT_COOKIE_NAME"),
 	SESSION_COOKIE_NAME: validateString("SESSION_COOKIE_NAME"),
+	ORIGIN_URL: validateString("ORIGIN_URL"),
 	APP_URL: validateString("APP_URL"),
+	API_URL: validateString("API_URL"),
 	...googleEnvSchema.shape,
 	...emailEnvSchema.shape
 });

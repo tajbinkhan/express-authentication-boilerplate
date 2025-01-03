@@ -1,24 +1,21 @@
 import { CorsOptions } from "cors";
 
-import { origins } from "@/core/constants";
-
 // CORS configuration with options
 export const corsOptions: CorsOptions = {
-	// Allow specific origin
-	// origin: "https://yourdomain.com",
-
-	// Allow multiple origins
-	origin: origins,
-
-	// Optional: Allow all origins (use with caution)
-	// origin: '*',
-
-	methods: ["GET", "POST", "PUT", "DELETE"],
-	allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
-
-	// Enable credentials (cookies, authorization headers)
+	origin: function (
+		origin: string | undefined,
+		callback: (err: Error | null, allow?: boolean) => void
+	) {
+		if (!origin || process.env.ORIGIN_URL.split(",").includes(origin)) {
+			callback(null, true);
+		} else {
+			callback(new Error("Not allowed by CORS"));
+		}
+	},
 	credentials: true,
 
-	// Optional: Maximum age of preflight request cache
+	methods: ["GET", "POST", "PUT", "DELETE"],
+
+	allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token", "ngrok-skip-browser-warning"],
 	maxAge: 3600
 };
