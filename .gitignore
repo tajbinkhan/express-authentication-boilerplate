@@ -147,4 +147,7 @@ dist
 # Routes JSON
 routes.json
 
+# Upload Directory
+uploads
+
 # End of https://www.toptal.com/developers/gitignore/api/node

@@ -73,6 +73,13 @@ export const validateSelectObject = (name: string) => {
 		.or(z.null());
 };
 
+export const validateEnum = (name: string, values: string[]) => {
+	return z.enum(values as [string, ...string[]], {
+		required_error: zodMessages.error.required.fieldIsRequired(name),
+		invalid_type_error: zodMessages.error.invalid.invalidEnum(name, values)
+	});
+};
+
 export const validateUsername = z
 	.string({
 		required_error: zodMessages.error.required.fieldIsRequired("Username")

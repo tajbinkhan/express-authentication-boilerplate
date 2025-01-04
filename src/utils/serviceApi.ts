@@ -70,6 +70,13 @@ export class ApiResponse {
 		});
 	}
 
+	forbiddenResponse(message: string) {
+		return this.sendResponse({
+			status: status.HTTP_403_FORBIDDEN,
+			message
+		});
+	}
+
 	badResponse(message: string) {
 		return this.sendResponse({
 			status: status.HTTP_400_BAD_REQUEST,

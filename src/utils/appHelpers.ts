@@ -108,7 +108,10 @@ export default class AppHelpers {
 	static sameSiteCookieConfig(): SameSiteCookieConfig {
 		try {
 			const appUrl = process.env.APP_URL;
-			const apiUrl = process.env.API_URL;
+			const apiUrl =
+				process.env.NODE_ENV === "production"
+					? process.env.API_URL
+					: `http://localhost:${process.env.PORT}`;
 
 			const appUrlObj = new URL(appUrl);
 			const apiUrlObj = new URL(apiUrl);

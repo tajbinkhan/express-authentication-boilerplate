@@ -5,11 +5,13 @@ import express from "express";
 import session from "express-session";
 import helmet from "helmet";
 import passport from "passport";
+import path from "path";
 
 // Passport Strategies
 import { sessionTimeout } from "@/core/constants";
 import { corsOptions } from "@/cors";
 import appLogger from "@/logger";
+import { uploadDir } from "@/multer/globalConfig";
 import "@/passport/passportCustom";
 import "@/passport/passportGoogle";
 import appRateLimiter from "@/rateLimiter";
@@ -25,8 +27,10 @@ dotenv.config();
 const app = express();
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use(`/${uploadDir}`, express.static(path.join(process.cwd(), "uploads")));
 
 /**
  * Initialize logger
