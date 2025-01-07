@@ -39,7 +39,7 @@ export default class AuthenticationController extends ApiController {
 		this.cookieService = new CookieService(request, response);
 	}
 
-	async register() {
+	async register(): Promise<Response> {
 		try {
 			const body = this.getReqBody();
 			const check = UserRegisterSchema.safeParse(body);
@@ -79,7 +79,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async loginWithUsername() {
+	async loginWithUsername(): Promise<Response | undefined> {
 		try {
 			const body = this.getReqBody();
 			const check = UsernameLoginSchema.safeParse(body);
@@ -116,7 +116,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async loginWithUsernameAndOTP() {
+	async loginWithUsernameAndOTP(): Promise<Response | undefined> {
 		try {
 			const body = this.getReqBody();
 			const check = UsernameLoginWithOTPSchema.safeParse(body);
@@ -159,7 +159,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async loginWithGoogle() {
+	async loginWithGoogle(): Promise<Response | void> {
 		try {
 			const user = this.request.user;
 
@@ -176,7 +176,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async logout() {
+	async logout(): Promise<Response | undefined> {
 		try {
 			this.request.session.destroy(err => {
 				if (err) {
@@ -193,7 +193,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async getSession() {
+	async getSession(): Promise<Response> {
 		try {
 			const user = this.request.user;
 			if (!user) return this.apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
@@ -204,7 +204,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async verifySession() {
+	async verifySession(): Promise<Response> {
 		try {
 			return this.apiResponse.successResponse("Authorized");
 		} catch (error) {
@@ -212,7 +212,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async checkAccountVerification() {
+	async checkAccountVerification(): Promise<Response> {
 		try {
 			const user = this.request.user;
 
@@ -236,7 +236,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async checkUser() {
+	async checkUser(): Promise<Response> {
 		try {
 			const { body } = this.request;
 			const check = UsernameLoginSchema.safeParse(body);
@@ -271,7 +271,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async verifyUser() {
+	async verifyUser(): Promise<Response> {
 		try {
 			const { body } = this.request;
 			const check = UserVerificationSchema.safeParse(body);
@@ -293,7 +293,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async resetPassword() {
+	async resetPassword(): Promise<Response> {
 		try {
 			const { body } = this.request;
 			if (!body.email) return this.apiResponse.badResponse("Email is required");
@@ -321,7 +321,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async resetPasswordConfirm() {
+	async resetPasswordConfirm(): Promise<Response> {
 		try {
 			const { body } = this.request;
 			const check = UserPasswordResetSchema.safeParse(body);
@@ -343,7 +343,7 @@ export default class AuthenticationController extends ApiController {
 		}
 	}
 
-	async changePassword() {
+	async changePassword(): Promise<Response> {
 		try {
 			const { body, user: UserData } = this.request;
 			const check = UserChangePasswordSchema.safeParse(body);

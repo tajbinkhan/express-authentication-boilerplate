@@ -2,13 +2,15 @@ import bcrypt from "bcrypt";
 import { and, eq } from "drizzle-orm";
 import { Profile as GoogleUserProfile } from "passport-google-oauth20";
 
+import { CreateUserType } from "@/app/authentication/authentication.type";
+
 import { sessionTimeout } from "@/core/constants";
 import DrizzleService from "@/databases/drizzle/service";
-import { UserSchemaType } from "@/databases/drizzle/types";
+import { AccountSchemaType, UserSchemaType } from "@/databases/drizzle/types";
 import { accounts, users } from "@/models/drizzle/authentication.model";
 import OTPEmailService from "@/service/otpService";
 import AppHelpers from "@/utils/appHelpers";
-import { ServiceResponse } from "@/utils/serviceApi";
+import { ServiceApiResponse, ServiceResponse } from "@/utils/serviceApi";
 import { status } from "@/utils/statusCodes";
 
 export default class AuthenticationService extends DrizzleService {
@@ -22,7 +24,9 @@ export default class AuthenticationService extends DrizzleService {
 		this.otpService = new OTPEmailService();
 	}
 
-	async createUser(data: Omit<UserSchemaType, "id" | "role" | "createdAt" | "updatedAt">) {
+	async createUser(
+		data: CreateUserType
+	): Promise<ServiceApiResponse<Omit<UserSchemaType, "password">>> {
 		try {
 			data.username && (await this.duplicateUserCheckByUsername(data.username));
 			data.email && (await this.duplicateUserCheckByEmail(data.email));
@@ -40,7 +44,11 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async createGoogleAccount(userId: number, data: GoogleUserProfile, accessToken: string) {
+	async createGoogleAccount(
+		userId: number,
+		data: GoogleUserProfile,
+		accessToken: string
+	): Promise<ServiceApiResponse<AccountSchemaType>> {
 		try {
 			const createdGoogleAccount = await this.db
 				.insert(accounts)
@@ -69,7 +77,10 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async createUserFromGoogle(data: GoogleUserProfile, accessToken: string) {
+	async createUserFromGoogle(
+		data: GoogleUserProfile,
+		accessToken: string
+	): Promise<ServiceApiResponse<Omit<UserSchemaType, "password">>> {
 		try {
 			const checkUserExistence = await this.db.query.users.findFirst({
 				where: eq(users.email, data._json.email!),
@@ -136,7 +147,7 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async findUserByUsernameOrEmail(username: string) {
+	async findUserByUsernameOrEmail(username: string): Promise<ServiceApiResponse<UserSchemaType>> {
 		try {
 			const inputType = AppHelpers.detectInputType(username);
 
@@ -169,14 +180,17 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async findUserById(id: number, withPassword: boolean = false) {
+	async findUserById(
+		id: number,
+		withPassword: boolean = false
+	): Promise<ServiceApiResponse<UserSchemaType>> {
 		try {
 			const user = await this.db.query.users.findFirst({
 				where: eq(users.id, id)
 			});
 
 			if (!user)
-				return ServiceResponse.createResponse(status.HTTP_404_NOT_FOUND, "User not found", user);
+				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "User not found");
 
 			if (withPassword)
 				return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
@@ -193,14 +207,17 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async findUserByEmail(email: string, withPassword: boolean = false) {
+	async findUserByEmail(
+		email: string,
+		withPassword: boolean = false
+	): Promise<ServiceApiResponse<UserSchemaType>> {
 		try {
 			const user = await this.db.query.users.findFirst({
 				where: eq(users.email, email)
 			});
 
 			if (!user)
-				return ServiceResponse.createResponse(status.HTTP_404_NOT_FOUND, "User not found", user);
+				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "User not found");
 
 			if (withPassword)
 				return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
@@ -217,14 +234,17 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async findUserByUsername(username: string, withPassword: boolean = false) {
+	async findUserByUsername(
+		username: string,
+		withPassword: boolean = false
+	): Promise<ServiceApiResponse<UserSchemaType>> {
 		try {
 			const user = await this.db.query.users.findFirst({
 				where: eq(users.username, username)
 			});
 
 			if (!user)
-				return ServiceResponse.createResponse(status.HTTP_404_NOT_FOUND, "User not found", user);
+				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "User not found");
 
 			if (withPassword)
 				return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
@@ -241,17 +261,16 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async duplicateUserCheckByEmail(email: string) {
+	async duplicateUserCheckByEmail(email: string): Promise<ServiceApiResponse<boolean>> {
 		try {
 			const user = await this.db.query.users.findFirst({
 				where: eq(users.email, email)
 			});
 
 			if (user)
-				return ServiceResponse.createResponse(
+				return ServiceResponse.createRejectResponse(
 					status.HTTP_409_CONFLICT,
-					"User already exists",
-					true
+					"User already exists"
 				);
 
 			return ServiceResponse.createResponse(status.HTTP_200_OK, "User does not exist", false);
@@ -260,17 +279,16 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async duplicateUserCheckByUsername(username: string) {
+	async duplicateUserCheckByUsername(username: string): Promise<ServiceApiResponse<boolean>> {
 		try {
 			const user = await this.db.query.users.findFirst({
 				where: eq(users.username, username)
 			});
 
 			if (user)
-				return ServiceResponse.createResponse(
+				return ServiceResponse.createRejectResponse(
 					status.HTTP_409_CONFLICT,
-					"User already exists",
-					true
+					"User already exists"
 				);
 
 			return ServiceResponse.createResponse(status.HTTP_200_OK, "User does not exist", false);
@@ -279,22 +297,23 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async passwordChecker(password: string, hashedPassword: string | null) {
+	async passwordChecker(
+		password: string,
+		hashedPassword: string | null
+	): Promise<ServiceApiResponse<boolean>> {
 		try {
 			if (!hashedPassword) {
-				return ServiceResponse.createResponse(
+				return ServiceResponse.createRejectResponse(
 					status.HTTP_400_BAD_REQUEST,
-					"User account has no password",
-					false
+					"User account has no password"
 				);
 			}
 			const check = await bcrypt.compare(password, hashedPassword);
 
 			if (!check)
-				return ServiceResponse.createResponse(
+				return ServiceResponse.createRejectResponse(
 					status.HTTP_400_BAD_REQUEST,
-					"Password incorrect",
-					check
+					"Password incorrect"
 				);
 
 			return ServiceResponse.createResponse(status.HTTP_200_OK, "Password checked", check);
@@ -303,7 +322,7 @@ export default class AuthenticationService extends DrizzleService {
 		}
 	}
 
-	async accountVerification(id: number) {
+	async accountVerification(id: number): Promise<ServiceApiResponse<boolean>> {
 		try {
 			await this.db
 				.update(users)
@@ -312,26 +331,29 @@ export default class AuthenticationService extends DrizzleService {
 				})
 				.where(eq(users.id, id));
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "User verified");
+			return ServiceResponse.createResponse(status.HTTP_200_OK, "User verified", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
 	}
 
-	async checkAccountVerification(id: number) {
+	async checkAccountVerification(id: number): Promise<ServiceApiResponse<boolean>> {
 		try {
 			const user = await this.findUserById(id);
 
 			if (!user.data?.emailVerified)
-				return ServiceResponse.createResponse(status.HTTP_400_BAD_REQUEST, "User is not verified");
+				return ServiceResponse.createRejectResponse(
+					status.HTTP_400_BAD_REQUEST,
+					"User is not verified"
+				);
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "User is verified");
+			return ServiceResponse.createResponse(status.HTTP_200_OK, "User is verified", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
 	}
 
-	async changePassword(id: number, newPassword: string) {
+	async changePassword(id: number, newPassword: string): Promise<ServiceApiResponse<boolean>> {
 		try {
 			const hashedPassword = await bcrypt.hash(newPassword, 10);
 
@@ -342,7 +364,11 @@ export default class AuthenticationService extends DrizzleService {
 				})
 				.where(eq(users.id, id));
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "Password changed successfully");
+			return ServiceResponse.createResponse(
+				status.HTTP_200_OK,
+				"Password changed successfully",
+				true
+			);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}

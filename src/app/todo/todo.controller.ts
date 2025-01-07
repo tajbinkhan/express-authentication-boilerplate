@@ -39,6 +39,8 @@ export default class TodoController extends ApiController {
 			const id = Number(this.request.params.id);
 			const response = await this.todoService.retrieveTodo(id);
 
+			// await this.todoService.testTodo(response.data.id);
+
 			return this.apiResponse.sendResponse(response);
 		} catch (error: unknown) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);

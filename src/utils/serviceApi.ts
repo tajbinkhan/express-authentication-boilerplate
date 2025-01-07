@@ -2,44 +2,82 @@ import { Response } from "express";
 
 import { status } from "@/utils/statusCodes";
 
-const noContentStatus = [status.HTTP_204_NO_DATA];
+// Create a type from the status object values
+type HttpStatusCode = (typeof status)[keyof typeof status];
 
+// Stricter Pagination interface with required fields
 export interface Pagination {
-	totalItems?: number;
-	limit?: number;
-	offset?: number;
-	currentPage?: number;
-	prevPage?: number;
-	nextPage?: number;
-	totalPages?: number;
-	hasPrevPage?: boolean;
-	hasNextPage?: boolean;
+	totalItems: number;
+	limit: number;
+	offset: number;
+	currentPage: number;
+	totalPages: number;
+	hasPrevPage: boolean;
+	hasNextPage: boolean;
+	prevPage: number | null;
+	nextPage: number | null;
 }
 
-export interface ServiceApiResponse<T> {
-	status: number;
+// Base interface for API responses
+interface BaseApiResponse {
+	status: HttpStatusCode;
 	message: string;
+}
+
+// Generic response interfaces with strict typing
+export interface ServiceApiResponse<T> extends BaseApiResponse {
+	data: T;
+	pagination?: Pagination;
+}
+
+export interface ServiceSendApiResponse<T> extends BaseApiResponse {
 	data?: T;
 	pagination?: Pagination;
 }
 
+// Error type definitions
+export interface ApiError extends BaseApiResponse {
+	error?: string;
+}
+
+const isApiError = (error: unknown): error is ApiError => {
+	return (
+		error !== null &&
+		typeof error === "object" &&
+		"status" in error &&
+		typeof (error as ApiError).status === "number" &&
+		"message" in error &&
+		typeof (error as ApiError).message === "string"
+	);
+};
+
+const NO_CONTENT_STATUSES = new Set([status.HTTP_204_NO_DATA]);
+
 export class ServiceResponse {
 	static async createResponse<T>(
-		status: number,
+		status: HttpStatusCode,
 		message: string,
-		data?: T,
+		data: T,
 		pagination?: Pagination
 	): Promise<ServiceApiResponse<T>> {
-		if (status >= 400) return Promise.reject({ status, message });
-		if (noContentStatus.includes(status)) {
-			return Promise.resolve({ status, message });
+		if (NO_CONTENT_STATUSES.has(status)) {
+			return Promise.resolve({ status, message, data: undefined as T });
 		}
 		return Promise.resolve({ status, message, data, pagination });
 	}
 
-	static createErrorResponse(error: any) {
-		console.log("Error: ", error.message);
-		if (error.status) return Promise.reject(error);
+	static async createRejectResponse<T>(
+		status: HttpStatusCode,
+		message: string
+	): Promise<ServiceApiResponse<T>> {
+		return Promise.reject({ status, message });
+	}
+
+	static createErrorResponse(error: unknown): Promise<never> {
+		console.error("Error:", error instanceof Error ? error.message : error);
+
+		if (isApiError(error)) return Promise.reject(error);
+
 		return Promise.reject({
 			status: status.HTTP_500_INTERNAL_SERVER_ERROR,
 			message: "Internal Server Error"
@@ -48,14 +86,14 @@ export class ServiceResponse {
 }
 
 export class ApiResponse {
-	private response: Response;
+	private readonly response: Response;
 
 	constructor(response: Response) {
 		this.response = response;
 	}
 
-	successResponse(message: string, data?: any, pagination?: Pagination) {
-		return this.sendResponse({
+	successResponse<T>(message: string, data?: T, pagination?: Pagination) {
+		return this.sendResponse<T>({
 			status: status.HTTP_200_OK,
 			message,
 			data,
@@ -84,17 +122,28 @@ export class ApiResponse {
 		});
 	}
 
-	internalServerError() {
+	internalServerError(message: string = "Internal Server Error") {
 		return this.sendResponse({
 			status: status.HTTP_500_INTERNAL_SERVER_ERROR,
-			message: "Internal Server Error"
+			message
 		});
 	}
 
-	sendResponse<T>({ status, message, data, pagination }: ServiceApiResponse<T>) {
-		if (noContentStatus.includes(status)) {
+	sendResponse<T>({ status, message, data, pagination }: ServiceSendApiResponse<T>): Response {
+		if (NO_CONTENT_STATUSES.has(status)) {
 			return this.response.status(status).json({});
 		}
-		return this.response.status(status).json({ status, message, data, pagination });
+
+		const responseBody: Partial<ServiceSendApiResponse<T>> = { status, message };
+
+		if (data !== undefined) {
+			responseBody.data = data;
+		}
+
+		if (pagination) {
+			responseBody.pagination = pagination;
+		}
+
+		return this.response.status(status).json(responseBody);
 	}
 }

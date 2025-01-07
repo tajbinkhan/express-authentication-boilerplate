@@ -30,7 +30,7 @@ export default class OTPService extends DrizzleService {
 
 			if (otpRequestCount && timeDifferenceInMinutes < timeLimit) {
 				const message = `You can only request OTP per ${timeLimit} minute(s). Please wait for ${timeLimit - timeDifferenceInMinutes} minute(s)`;
-				return ServiceResponse.createResponse(status.HTTP_429_TOO_MANY_REQUESTS, message);
+				return ServiceResponse.createRejectResponse(status.HTTP_429_TOO_MANY_REQUESTS, message);
 			}
 
 			return Promise.resolve(true);
@@ -46,7 +46,10 @@ export default class OTPService extends DrizzleService {
 	) {
 		try {
 			if (!user.email)
-				return ServiceResponse.createResponse(status.HTTP_404_NOT_FOUND, "Email is not registered");
+				return ServiceResponse.createRejectResponse(
+					status.HTTP_404_NOT_FOUND,
+					"Email is not registered"
+				);
 
 			await this.limitOTPRequest(user, tokenType);
 
@@ -84,11 +87,11 @@ export default class OTPService extends DrizzleService {
 			});
 
 			if (!tokenRecord)
-				return ServiceResponse.createResponse(status.HTTP_400_BAD_REQUEST, "Invalid OTP");
+				return ServiceResponse.createRejectResponse(status.HTTP_400_BAD_REQUEST, "Invalid OTP");
 
 			if (tokenRecord?.expires && tokenRecord.expires < new Date()) {
 				await this.deleteOTPFromDatabase(user, tokenType);
-				return ServiceResponse.createResponse(status.HTTP_400_BAD_REQUEST, "OTP expired");
+				return ServiceResponse.createRejectResponse(status.HTTP_400_BAD_REQUEST, "OTP expired");
 			}
 
 			await this.deleteOTPFromDatabase(user, tokenType);
