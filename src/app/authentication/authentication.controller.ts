@@ -55,18 +55,15 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.createUser(extendedData);
 
-			const otp = await this.otpService.saveOTPToDatabase(
-				user.data!,
-				TOKEN_LIST.EMAIL_VERIFICATION
-			);
+			const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.EMAIL_VERIFICATION);
 
-			if (otp) {
+			if (otp && user.data.email) {
 				sendEmail({
-					email: user.data?.email!,
+					email: user.data.email,
 					emailSubject: "Your account verification OTP",
 					template: "otpEmailTemplate",
 					data: {
-						username: user.data?.username,
+						username: user.data.username,
 						otp,
 						otpExpirationTime: 5
 					}
@@ -88,15 +85,15 @@ export default class AuthenticationController extends ApiController {
 			}
 
 			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
-			await this.authenticationService.checkAccountVerification(user.data?.id!);
-			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
+			await this.authenticationService.checkAccountVerification(user.data.id);
+			await this.authenticationService.passwordChecker(check.data.password, user.data.password);
 
 			const { password, ...userData } = user.data!;
 
 			const accessToken = await this.cookieService.saveCookieToBrowser(userData);
 
 			// Log the user in to establish session
-			this.request.login(user?.data!, err => {
+			this.request.login(user.data, err => {
 				if (err) {
 					return this.apiResponse.sendResponse({
 						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -104,7 +101,7 @@ export default class AuthenticationController extends ApiController {
 					});
 				}
 
-				const { password, ...userData } = user?.data!;
+				const { password, ...userData } = user.data;
 
 				return this.apiResponse.successResponse("Login successful", {
 					user: userData,
@@ -125,10 +122,10 @@ export default class AuthenticationController extends ApiController {
 			}
 
 			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
-			await this.authenticationService.checkAccountVerification(user.data?.id!);
-			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
+			await this.authenticationService.checkAccountVerification(user.data.id);
+			await this.authenticationService.passwordChecker(check.data.password, user.data.password);
 
-			const { password, ...userData } = user.data!;
+			const { password, ...userData } = user.data;
 
 			await this.otpService.verifyOTPFromDatabase(
 				userData,
@@ -139,7 +136,7 @@ export default class AuthenticationController extends ApiController {
 			const accessToken = await this.cookieService.saveCookieToBrowser(userData);
 
 			// Log the user in to establish session
-			this.request.login(user?.data!, err => {
+			this.request.login(user.data, err => {
 				if (err) {
 					return this.apiResponse.sendResponse({
 						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -147,7 +144,7 @@ export default class AuthenticationController extends ApiController {
 					});
 				}
 
-				const { password, ...userData } = user?.data!;
+				const { password, ...userData } = user.data;
 
 				return this.apiResponse.successResponse("Login successful", {
 					user: userData,
@@ -195,7 +192,7 @@ export default class AuthenticationController extends ApiController {
 
 	async getSession(): Promise<Response> {
 		try {
-			const user = this.request.user;
+			const { user } = this.request;
 			if (!user) return this.apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
 
 			return this.apiResponse.successResponse("Authorized", user);
@@ -214,7 +211,7 @@ export default class AuthenticationController extends ApiController {
 
 	async checkAccountVerification(): Promise<Response> {
 		try {
-			const user = this.request.user;
+			const { user } = this.request;
 
 			if (!user?.emailVerified) {
 				this.request.session.destroy(err => {
@@ -245,19 +242,19 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
 
-			await this.authenticationService.passwordChecker(check.data.password, user.data?.password!);
+			await this.authenticationService.passwordChecker(check.data.password, user.data.password);
 
 			if (check.data.otp) {
-				await this.authenticationService.checkAccountVerification(user.data?.id!);
-				const otp = await this.otpService.saveOTPToDatabase(user.data!, TOKEN_LIST.LOGIN_OTP);
+				await this.authenticationService.checkAccountVerification(user.data.id);
+				const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.LOGIN_OTP);
 
-				if (otp) {
+				if (otp && user.data.email) {
 					sendEmail({
-						email: user.data?.email!,
+						email: user.data.email,
 						emailSubject: "Login OTP",
 						template: "otpEmailTemplate",
 						data: {
-							username: user.data?.username,
+							username: user.data.username,
 							otp,
 							otpExpirationTime: 5
 						}
@@ -281,11 +278,11 @@ export default class AuthenticationController extends ApiController {
 			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
 
 			await this.otpService.verifyOTPFromDatabase(
-				user.data!,
+				user.data,
 				String(check.data.otp),
 				TOKEN_LIST.EMAIL_VERIFICATION
 			);
-			await this.authenticationService.accountVerification(user.data?.id!);
+			await this.authenticationService.accountVerification(user.data.id);
 
 			return this.apiResponse.successResponse("User verified");
 		} catch (error) {
@@ -300,15 +297,15 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserByEmail(body.email);
 
-			const otp = await this.otpService.saveOTPToDatabase(user.data!, TOKEN_LIST.PASSWORD_RESET);
+			const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.PASSWORD_RESET);
 
-			if (otp) {
+			if (otp && user.data.email) {
 				sendEmail({
-					email: user.data?.email!,
+					email: user.data.email,
 					emailSubject: "Your password reset OTP",
 					template: "otpEmailTemplate",
 					data: {
-						username: user.data?.username,
+						username: user.data.username,
 						otp,
 						otpExpirationTime: 5
 					}
@@ -331,11 +328,11 @@ export default class AuthenticationController extends ApiController {
 			const user = await this.authenticationService.findUserByEmail(check.data.email);
 
 			await this.otpService.verifyOTPFromDatabase(
-				user.data!,
+				user.data,
 				String(check.data.otp),
 				TOKEN_LIST.PASSWORD_RESET
 			);
-			await this.authenticationService.changePassword(user.data?.id!, check.data.password);
+			await this.authenticationService.changePassword(user.data.id, check.data.password);
 
 			return this.apiResponse.successResponse("User password reset");
 		} catch (error) {
@@ -352,12 +349,9 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserById(UserData?.id!, true);
 
-			await this.authenticationService.passwordChecker(
-				check.data.oldPassword,
-				user.data?.password!
-			);
+			await this.authenticationService.passwordChecker(check.data.oldPassword, user.data.password);
 			const response = await this.authenticationService.changePassword(
-				user.data?.id!,
+				user.data.id,
 				check.data.newPassword
 			);
 
@@ -376,20 +370,17 @@ export default class AuthenticationController extends ApiController {
 
 			const user = await this.authenticationService.findUserByUsernameOrEmail(check.data.username);
 
-			if (user.data?.emailVerified) return this.apiResponse.badResponse("User is already verified");
+			if (user.data.emailVerified) return this.apiResponse.badResponse("User is already verified");
 
-			const otp = await this.otpService.saveOTPToDatabase(
-				user.data!,
-				TOKEN_LIST.EMAIL_VERIFICATION
-			);
+			const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.EMAIL_VERIFICATION);
 
-			if (otp) {
+			if (otp && user.data.email) {
 				sendEmail({
-					email: user.data?.email!,
+					email: user.data.email,
 					emailSubject: "Your account verification OTP",
 					template: "otpEmailTemplate",
 					data: {
-						username: user.data?.username,
+						username: user.data.username,
 						otp,
 						otpExpirationTime: 5
 					}
