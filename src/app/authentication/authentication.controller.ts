@@ -88,7 +88,7 @@ export default class AuthenticationController extends ApiController {
 			await this.authenticationService.checkAccountVerification(user.data.id);
 			await this.authenticationService.passwordChecker(check.data.password, user.data.password);
 
-			const { password, ...userData } = user.data!;
+			const { password, ...userData } = user.data;
 
 			const accessToken = await this.cookieService.saveCookieToBrowser(userData);
 
@@ -162,7 +162,9 @@ export default class AuthenticationController extends ApiController {
 
 			await this.cookieService.saveCookieToBrowser(user!);
 
-			return this.response.redirect(process.env.APP_URL);
+			const appUrl = process.env.APP_URL + "?success=Google";
+
+			return this.response.redirect(appUrl);
 
 			// return this.apiResponse.successResponse("Login successful", {
 			// 	user: user,

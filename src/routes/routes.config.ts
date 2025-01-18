@@ -3,7 +3,7 @@ import fs from "fs";
 
 import { routes } from "@/routes/app.routes";
 
-export default function appRouter(app: Express, initialRoute: string = "/api") {
+export default function appRouter(app: Express, initialRoute: string = "") {
 	const allRoutes: { method: string; path: string }[] = [];
 
 	// Iterate over all the routes in the `routes` configuration

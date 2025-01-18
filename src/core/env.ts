@@ -18,6 +18,7 @@ const emailEnvSchema = z.object({
 
 export const envSchema = z.object({
 	DATABASE_URL: validateString("DATABASE_URL"),
+	MONGO_DATABASE_URL: validateString("MONGO_DATABASE_URL"),
 	PORT: validateString("PORT").refine(value => !isNaN(Number(value)), "PORT must be a number"),
 	SECRET: validateString("SECRET"),
 	NODE_ENV: validateEnum("NODE_ENV", ["development", "production"]),

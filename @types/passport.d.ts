@@ -11,9 +11,7 @@ declare global {
 declare module "express-session" {
 	interface Session {
 		passport?: {
-			user?: {
-				id: number;
-			};
+			user?: number;
 		};
 	}
 }
