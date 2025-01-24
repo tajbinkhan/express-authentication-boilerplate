@@ -1,142 +1,99 @@
-# Express TypeScript Boilerplate
+# Express Authentication Server
 
-Modern Express.js application with TypeScript, featuring robust authentication, session management,
-and structured architecture.
+A secure authentication server built with Express.js featuring comprehensive security measures and
+modern authentication capabilities.
 
-## 🚀 Features
+## Features
 
-- TypeScript implementation
-- JWT & Session authentication
-- Google OAuth integration
-- Custom session store with Drizzle ORM
-- CSRF protection
-- Rate limiting
-- Structured error handling
-- API response standardization
+- 🔐 **Authentication**
 
-## 📁 Project Structure
+  - Custom authentication strategy
+  - Google OAuth integration
+  - Session-based authentication
+  - Passport.js integration
+
+- 🛡️ **Security**
+
+  - CSRF protection
+  - Helmet security headers
+  - Rate limiting
+  - CORS configuration
+  - Cookie security
+
+- 🔧 **Core Features**
+  - MongoDB integration
+  - WebSocket support (Socket.IO)
+  - File upload handling
+  - Request logging
+  - Error handling middleware
+  - Environment configuration
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js
+- MongoDB
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
 
 ```bash
-├── src/
-│   ├── app/
-│   │   ├── authentication/
-│   │   │   ├── Authentication.controller.ts
-│   │   │   ├── Authentication.routes.ts
-│   │   │   ├── Authentication.service.ts
-│   │   │   └── Authentication.JWT.ts
-│   │   └── ...
-│   ├── database/
-│   │   ├── db.ts
-│   │   └── schema.ts
-│   ├── middlewares/
-│   │   ├── authentication.middleware.ts
-│   │   └── error.middleware.ts
-│   ├── passport/
-│   │   ├── PassportCustom.ts
-│   │   └── PassportJWT.ts
-│   ├── session/
-│   │   └── CustomSessionStore.ts
-│   ├── utils/
-│   │   ├── AppHelpers.ts
-│   │   ├── CSRF.ts
-│   │   └── ServiceApi.ts
-│   ├── app.ts
-│   └── server.ts
-├── .env.example
-├── package.json
-└── tsconfig.json
+npm install
 ```
 
-## Setup
+3. Create a `.env` file with the following variables:
 
-Install Dependencies
-
-```bash
-pnpm install
-```
-
-Environment Configuration `.env.example` to `.env`:
-
-```bash
-PORT=3000
-SECRET=your_jwt_secret
+```env
+PORT=8080
+NODE_ENV=development
+MONGODB_URI=your_mongodb_uri
+SESSION_SECRET=your_session_secret
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
-Database Setup
+4. Start the server:
 
 ```bash
-pnpm db:generate
-pnpm db:push
+npm run dev
 ```
 
-Start Development Server
+## API Endpoints
 
-```bash
-pnpm dev
-```
+The server will be available at:
 
-## Available Scripts
+- Local: http://localhost:8080
+- WebSocket: ws://localhost:8080
+- Network: http://your_ip:8080
 
-- `pnpm dev` - Start development server
-- `pnpm build` - Build production
-- `pnpm start` - Start production server
-- `pnpm db:push` - Update database schema
+## Technology Stack
 
-## Authentication
-
-Supports multiple authentication methods:
-
-- JWT token-based
-- Session-based
-- Google OAuth
-
-```bash
-// Login Example
-POST /api/auth/login
-{
-  "username": "user@example.com",
-  "password": "password123"
-}
-```
+- Express.js
+- MongoDB
+- Socket.IO
+- Passport.js
+- Helmet
+- CORS
+- Cookie Parser
+- Express Session
 
 ## Security Features
 
-- Session Management
-- CSRF Protection
+- Double CSRF Protection
 - Rate Limiting
-- Secure Cookie Configuration
-- Input Validation
-
-## API Response Format
-
-```bash
-{
-  "status": number,
-  "message": string,
-  "data": any
-}
-```
-
-## Core Dependencies
-
-- express
-- typescript
-- passport
-- drizzle-orm
-- express-session
-- cookie-parser
-- helmet
+- Secure Sessions
+- Helmet Security Headers
+- CORS Configuration
+- Error Handling
 
 ## Contributing
 
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Open pull request
+Feel free to submit issues and pull requests.
 
 ## License
 
-[MIT License](https://choosealicense.com/licenses/mit/)
+This project is licensed under the MIT License.
