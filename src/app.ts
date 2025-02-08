@@ -6,9 +6,7 @@ import helmet from "helmet";
 import passport from "passport";
 import path from "path";
 
-// Passport Strategies
 import { corsOptions } from "@/cors";
-import MongoDBClient from "@/databases/mongo/connection";
 import appLogger from "@/logger";
 import { uploadDir } from "@/multer/globalConfig";
 import "@/passport/passportCustom";
@@ -23,6 +21,7 @@ import { notFoundHandler, serverErrorHandler } from "@/utils/errorHandler";
 dotenv.config();
 
 const app = express();
+
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -63,12 +62,6 @@ app.use(passport.session());
 app.use(doubleCsrfProtection);
 
 /**
- * MongoDB connection
- * This is the connection to the MongoDB database
- */
-new MongoDBClient().connect();
-
-/**
  * Default route
  * This is the default route for the server
  */
@@ -87,6 +80,8 @@ appRouter(app);
  * This is to prevent the server from crashing
  */
 notFoundHandler(app);
+
+// Store socket.io instance on app for use in routes
 
 /**
  * Error handler
