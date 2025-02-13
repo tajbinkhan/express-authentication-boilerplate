@@ -1,0 +1,72 @@
+[
+	{
+		"name": "John Doe",
+		"username": "johndoe",
+		"email": "john@example.com",
+		"image": "https://randomuser.me/api/portraits/men/1.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Jane Smith",
+		"username": "janesmith",
+		"email": "jane@example.com",
+		"image": "https://randomuser.me/api/portraits/women/1.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Mike Johnson",
+		"username": "mikejohnson",
+		"email": "mike@example.com",
+		"image": "https://randomuser.me/api/portraits/men/2.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Sarah Wilson",
+		"username": "sarahwilson",
+		"email": "sarah@example.com",
+		"image": "https://randomuser.me/api/portraits/women/2.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "David Brown",
+		"username": "davidbrown",
+		"email": "david@example.com",
+		"image": "https://randomuser.me/api/portraits/men/3.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Emma Davis",
+		"username": "emmadavis",
+		"email": "emma@example.com",
+		"image": "https://randomuser.me/api/portraits/women/3.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "James Wilson",
+		"username": "jameswilson",
+		"email": "james@example.com",
+		"image": "https://randomuser.me/api/portraits/men/4.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Lisa Anderson",
+		"username": "lisaanderson",
+		"email": "lisa@example.com",
+		"image": "https://randomuser.me/api/portraits/women/4.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Robert Taylor",
+		"username": "roberttaylor",
+		"email": "robert@example.com",
+		"image": "https://randomuser.me/api/portraits/men/5.jpg",
+		"role": "SUBSCRIBER"
+	},
+	{
+		"name": "Emily White",
+		"username": "emilywhite",
+		"email": "emily@example.com",
+		"image": "https://randomuser.me/api/portraits/women/5.jpg",
+		"role": "SUBSCRIBER"
+	}
+]

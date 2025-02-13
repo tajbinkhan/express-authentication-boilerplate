@@ -13,8 +13,8 @@ import {
 } from "@/app/authentication/authentication.validator";
 
 import { ApiController } from "@/controllers/base/api.controller";
+import { TOKEN_LIST } from "@/databases/drizzle/lists";
 import { UserSchemaType } from "@/databases/drizzle/types";
-import { TOKEN_LIST } from "@/models/drizzle/authentication.model";
 import CookieService from "@/service/cookieService";
 import sendEmail from "@/service/emailService";
 import OTPService from "@/service/otpService";

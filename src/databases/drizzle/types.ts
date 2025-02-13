@@ -1,6 +1,7 @@
 import { InferSelectModel } from "drizzle-orm";
 
-import { ROLE_LIST, TOKEN_LIST, accounts, users } from "@/models/drizzle/authentication.model";
+import { ROLE_LIST, TOKEN_LIST } from "@/databases/drizzle/lists";
+import { accounts, users } from "@/models/drizzle/authentication.model";
 
 export type UserSchemaType = InferSelectModel<typeof users>;
 export type AccountSchemaType = InferSelectModel<typeof accounts>;

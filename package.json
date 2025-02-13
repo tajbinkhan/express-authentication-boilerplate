@@ -12,7 +12,10 @@
 		"type-check": "tsc --noEmit",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
 		"db:push": "drizzle-kit push",
+		"db:clear": "tsx src/databases/drizzle/clean.ts",
+		"db:seed": "tsx src/seed/superSeeder.ts",
 		"destroy": "rimraf -g \"{node_modules,.next,.cache}\"",
 		"prepare": "husky"
 	},

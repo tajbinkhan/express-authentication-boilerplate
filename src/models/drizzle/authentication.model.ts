@@ -10,25 +10,9 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { timestamps } from "@/databases/drizzle/helpers";
-
-export const ROLE_LIST = {
-	SUPER_ADMIN: "SUPER_ADMIN",
-	ADMINISTRATOR: "ADMINISTRATOR",
-	EDITOR: "EDITOR",
-	AUTHOR: "AUTHOR",
-	CONTRIBUTOR: "CONTRIBUTOR",
-	SUBSCRIBER: "SUBSCRIBER",
-	enumValues: ["SUPER_ADMIN", "ADMINISTRATOR", "EDITOR", "AUTHOR", "CONTRIBUTOR", "SUBSCRIBER"]
-} as const;
+import { ROLE_LIST, TOKEN_LIST } from "@/databases/drizzle/lists";
 
 export const ROLE_TYPE = pgEnum("role_type", ROLE_LIST.enumValues);
-
-export const TOKEN_LIST = {
-	PASSWORD_RESET: "PASSWORD_RESET",
-	EMAIL_VERIFICATION: "EMAIL_VERIFICATION",
-	LOGIN_OTP: "LOGIN_OTP",
-	enumValues: ["PASSWORD_RESET", "EMAIL_VERIFICATION", "LOGIN_OTP"]
-} as const;
 
 export const TOKEN_TYPE = pgEnum("token_type", TOKEN_LIST.enumValues);
 
