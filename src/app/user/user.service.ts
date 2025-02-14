@@ -1,7 +1,8 @@
-import { and, count, ilike } from "drizzle-orm";
+import { and, count, ilike, inArray } from "drizzle-orm";
 
 import PaginationManager from "@/core/pagination";
 import DrizzleService from "@/databases/drizzle/service";
+import { RoleType } from "@/databases/drizzle/types";
 import { users } from "@/models/drizzle/authentication.model";
 import { ServiceResponse } from "@/utils/serviceApi";
 import { SortingHelper } from "@/utils/sortingHelper";
@@ -24,7 +25,8 @@ export default class UserService extends DrizzleService {
 			}
 
 			const conditions = [
-				filter.search ? ilike(users.name, `%${filter.search}%`) : undefined
+				filter.search ? ilike(users.name, `%${filter.search}%`) : undefined,
+				filter.roleQuery ? inArray(users.role, filter.roleQuery as RoleType[]) : undefined
 			].filter(Boolean);
 
 			const whereClause = conditions.length > 0 ? and(...conditions) : undefined;

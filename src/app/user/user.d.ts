@@ -4,4 +4,5 @@ interface UserFilter {
 	sortingMethod?: string;
 	sortBy?: string;
 	search?: string;
+	roleQuery?: string[];
 }

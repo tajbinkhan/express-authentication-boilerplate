@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 import UserService from "@/app/user/user.service";
+import { UserQuerySchema } from "@/app/user/user.validator";
 
 import { ApiController } from "@/controllers/base/api.controller";
 import { users } from "@/models/drizzle/authentication.model";
@@ -24,33 +25,22 @@ export default class UserController extends ApiController {
 
 	async index() {
 		try {
-			const { page, limit, sortingMethod, sortBy, search } = this.request.query;
+			const { query } = this.request;
 
-			const pageQuery = page ? Number(page) : undefined;
-			const limitQuery = limit ? Number(limit) : pageQuery ? 10 : undefined;
-
-			const sortMethodQuery =
-				sortingMethod && this.sortingHelper.isValidSortMethod(String(sortingMethod))
-					? String(sortingMethod)
-					: pageQuery
-						? "id"
-						: undefined;
-
-			const sortByQuery =
-				sortBy && this.sortingHelper.isValidSortDirection(String(sortBy))
-					? String(sortBy).toLowerCase()
-					: pageQuery
-						? "desc"
-						: undefined;
-
-			const searchQuery = search ? String(search) : undefined;
+			const check = UserQuerySchema(this.sortingHelper).safeParse(query);
+			if (!check.success) {
+				return this.apiResponse.badResponse(
+					check.error.errors.map(error => error.message).join(", ")
+				);
+			}
 
 			const data = await this.userService.retrieveUsers({
-				page: pageQuery,
-				limit: limitQuery,
-				sortingMethod: sortMethodQuery,
-				sortBy: sortByQuery,
-				search: searchQuery
+				page: check.data.page,
+				limit: check.data.limit,
+				sortingMethod: check.data.sortingMethod,
+				sortBy: check.data.sortBy,
+				search: check.data.search,
+				roleQuery: check.data.roleQuery
 			});
 
 			return this.apiResponse.sendResponse(data);
