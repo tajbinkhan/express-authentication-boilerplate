@@ -1,8 +1,8 @@
+import { faker } from "@faker-js/faker";
 import { hash } from "bcrypt";
-import { readFile } from "fs/promises";
-import path from "path";
 
 import db from "@/databases/drizzle/connection";
+import { ROLE_LIST } from "@/databases/drizzle/lists";
 import { RoleType } from "@/databases/drizzle/types";
 import { users } from "@/models/drizzle/authentication.model";
 
@@ -14,16 +14,25 @@ interface SeedUser {
 	role: RoleType;
 }
 
+const generateFakeUsers = (count: number): SeedUser[] => {
+	return Array.from({ length: count }, () => ({
+		name: faker.person.fullName(),
+		username: faker.internet.username(),
+		email: faker.internet.email(),
+		image: faker.image.avatar(),
+		role: faker.helpers.arrayElement(ROLE_LIST.enumValues) as RoleType
+	}));
+};
+
 const seedUsers = async () => {
 	try {
-		// Read the seed data from JSON file
-		const jsonPath = path.join(process.cwd(), "src/seed/data/users.json");
-		const seedData: SeedUser[] = JSON.parse(await readFile(jsonPath, "utf-8"));
+		// Generate fake users
+		const seedData: SeedUser[] = generateFakeUsers(100);
 
-		// Create hashed password for all users
-		const hashedPassword = await hash("password123", 10);
+		// Hash the password
+		const hashedPassword = await hash("Bang@123", 10);
 
-		// Prepare the user data with additional fields
+		// Prepare user data
 		const userData = seedData.map(user => ({
 			...user,
 			password: hashedPassword,
@@ -32,10 +41,8 @@ const seedUsers = async () => {
 			updatedAt: new Date()
 		}));
 
-		// Insert all users
+		// Insert users into database
 		await db.insert(users).values(userData);
-
-		console.log("Users seeded successfully!");
 	} catch (error) {
 		console.error("Error seeding users:", error);
 	}

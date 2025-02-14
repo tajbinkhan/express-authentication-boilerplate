@@ -23,6 +23,7 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
+		"@faker-js/faker": "^9.5.0",
 		"@panva/hkdf": "^1.2.1",
 		"bcrypt": "^5.1.1",
 		"cookie-parser": "^1.4.7",
@@ -89,6 +90,13 @@
 		],
 		"**/*.{json,md}": [
 			"prettier --write"
+		]
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"bcrypt",
+			"esbuild",
+			"sharp"
 		]
 	}
 }
