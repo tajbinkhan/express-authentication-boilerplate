@@ -44,6 +44,7 @@ export default class UserService extends DrizzleService {
 			).createPagination();
 
 			const data = await this.db.query.users.findMany({
+				columns: { password: false },
 				where: whereClause,
 				limit: filter.limit ? filter.limit : undefined,
 				offset: filter.limit ? offset : undefined,
@@ -66,6 +67,7 @@ export default class UserService extends DrizzleService {
 			const orderBy = this.sortingHelper.applySorting(sortingMethod, sortBy);
 
 			const data = await this.db.query.users.findMany({
+				columns: { password: false },
 				orderBy
 			});
 
