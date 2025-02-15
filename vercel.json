@@ -1,0 +1,20 @@
+{
+	"version": 2,
+	"builds": [
+		{
+			"src": "package.json",
+			"use": "@vercel/static-build",
+			"buildCommand": "pnpm build"
+		},
+		{
+			"src": "dist/src/server.cjs",
+			"use": "@vercel/node"
+		}
+	],
+	"routes": [
+		{
+			"src": "/(.*)",
+			"dest": "dist/src/server.cjs"
+		}
+	]
+}
