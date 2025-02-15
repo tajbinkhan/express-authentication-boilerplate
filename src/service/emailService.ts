@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import path from "path";
 
 const __dirname = process.cwd();
+const templatesPath = path.join(__dirname, "public/templates");
 
 interface EmailService {
 	email: string;
@@ -34,13 +35,9 @@ const sendEmail = async ({
 		secure: false
 	});
 
-	const html = await ejs.renderFile(
-		path.join(__dirname, "src/templates", `${template}.ejs`),
-		data,
-		{
-			async: true
-		}
-	);
+	const html = await ejs.renderFile(path.join(templatesPath, `${template}.ejs`), data, {
+		async: true
+	});
 
 	// Email content
 	const mailOptions = {
