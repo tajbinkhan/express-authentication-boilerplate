@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../src/app/authentication/authentication.type.ts"],"sourcesContent":["import { UserSchemaType } from \"@/databases/drizzle/types\";\n\nexport type CreateUserType = Omit<UserSchemaType, \"id\" | \"role\" | \"createdAt\" | \"updatedAt\">;\n"],"mappings":";;;;;;;;;;;;;;;;AAAA;AAAA;","names":[]}
