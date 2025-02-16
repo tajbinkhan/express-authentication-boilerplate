@@ -5,10 +5,11 @@
 	"main": "server.js",
 	"type": "module",
 	"scripts": {
-		"build": "tsc --noEmit && rimraf dist && tsup",
+		"build": "tsc --noEmit && eslint . && rimraf dist && tsup",
 		"dev": "nodemon",
 		"start": "node dist/src/server.cjs",
 		"format": "prettier --write .",
+		"lint": "eslint .",
 		"type-check": "tsc --noEmit",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
@@ -55,6 +56,7 @@
 		"zod": "^3.24.1"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.20.0",
 		"@trivago/prettier-plugin-sort-imports": "^5.2.1",
 		"@types/bcrypt": "^5.0.2",
 		"@types/cookie-parser": "^1.4.8",
@@ -73,16 +75,22 @@
 		"@types/passport-local": "^1.0.38",
 		"@types/pg": "^8.11.11",
 		"drizzle-kit": "^0.30.2",
+		"eslint": "^9.20.1",
+		"eslint-config-prettier": "^10.0.1",
+		"eslint-plugin-unused-imports": "^4.1.4",
+		"globals": "^15.15.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^15.4.2",
 		"prettier": "^3.4.2",
 		"rimraf": "^6.0.1",
 		"tsup": "^8.3.5",
 		"tsx": "^4.19.2",
-		"typescript": "^5.7.3"
+		"typescript": "^5.7.3",
+		"typescript-eslint": "^8.24.0"
 	},
 	"lint-staged": {
 		"**/*.{js,jsx,ts,tsx}": [
+			"eslint --fix",
 			"prettier --write"
 		],
 		"**/*.{css,scss}": [
