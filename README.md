@@ -7,10 +7,11 @@ modern authentication capabilities.
 
 - 🔐 **Authentication**
 
-  - Custom authentication strategy
-  - Google OAuth integration
+  - Local authentication with Passport.js
+  - Google OAuth 2.0 integration
+  - JWT token-based authentication
   - Session-based authentication
-  - Passport.js integration
+  - Custom authentication strategies
 
 - 🛡️ **Security**
 
@@ -18,23 +19,35 @@ modern authentication capabilities.
   - Helmet security headers
   - Rate limiting
   - CORS configuration
-  - Cookie security
+  - Secure cookie handling
+  - Input validation with Zod
+
+- 📦 **Database**
+
+  - PostgreSQL with Drizzle ORM
+  - MongoDB with Mongoose
+  - Database migrations
+  - Seeding support
+  - Studio for database management
 
 - 🔧 **Core Features**
-  - MongoDB integration
+  - TypeScript support
   - WebSocket support (Socket.IO)
-  - File upload handling
-  - Request logging
-  - Error handling middleware
+  - File upload handling with Multer
+  - Image processing with Sharp
+  - Email sending with Nodemailer
   - Environment configuration
+  - ESLint + Prettier code quality
+  - Husky git hooks
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
+- Node.js (18+)
+- PostgreSQL
 - MongoDB
-- npm or yarn
+- pnpm (recommended)
 
 ### Installation
 
@@ -42,57 +55,77 @@ modern authentication capabilities.
 2. Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
-3. Create a `.env` file with the following variables:
+3. Copy `.env.example` to `.env` and configure your environment variables
 
-```env
-PORT=8080
-NODE_ENV=development
-MONGODB_URI=your_mongodb_uri
-SESSION_SECRET=your_session_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-```
-
-4. Start the server:
+4. Initialize the database:
 
 ```bash
-npm run dev
+pnpm db:generate   # Generate migrations
+pnpm db:push      # Push schema to database
+pnpm db:seed      # Seed initial data
 ```
 
-## API Endpoints
+5. Start development server:
 
-The server will be available at:
+```bash
+pnpm dev
+```
 
-- Local: http://localhost:8080
-- WebSocket: ws://localhost:8080
-- Network: http://your_ip:8080
+## Available Scripts
+
+```bash
+pnpm build          # Build for production
+pnpm start          # Start production server
+pnpm dev            # Start development server
+pnpm format         # Format code with Prettier
+pnpm lint           # Lint code with ESLint
+pnpm type-check     # Check TypeScript types
+pnpm db:studio      # Open Drizzle database studio
+pnpm db:generate    # Generate database migrations
+pnpm db:migrate     # Run database migrations
+pnpm db:push        # Push schema changes
+pnpm db:seed        # Seed database
+```
 
 ## Technology Stack
 
-- Express.js
-- MongoDB
-- Socket.IO
-- Passport.js
-- Helmet
-- CORS
-- Cookie Parser
-- Express Session
-
-## Security Features
-
-- Double CSRF Protection
-- Rate Limiting
-- Secure Sessions
-- Helmet Security Headers
-- CORS Configuration
-- Error Handling
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **Databases**:
+  - PostgreSQL (Drizzle ORM)
+  - MongoDB (Mongoose)
+- **Authentication**:
+  - Passport.js
+  - JWT (jose)
+  - Session
+- **Security**:
+  - Helmet
+  - CSRF-CSRF
+  - Express Rate Limit
+  - CORS
+- **Utils**:
+  - Socket.IO
+  - Sharp
+  - Nodemailer
+  - Multer
+  - Zod
+- **Development**:
+  - ESLint
+  - Prettier
+  - Husky
+  - lint-staged
+  - tsx/tsup
 
 ## Contributing
 
-Feel free to submit issues and pull requests.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
