@@ -1,4 +1,3 @@
-import { Express } from "express";
 import session from "express-session";
 
 import { sessionTimeout } from "@/core/constants";
