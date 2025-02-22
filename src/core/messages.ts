@@ -136,7 +136,7 @@ export const zodMessages = {
 			invalidDate: (field: string) => `${field} must be a date.`,
 			invalidArray: (field: string) => `${field} must be an array.`,
 			invalidObject: (field: string) => `${field} must be an object.`,
-			invalidEnum: (field: string, values: string[]) =>
+			invalidEnum: (field: string, values: readonly string[]) =>
 				`${field} must be one of the following values: ${values.join(", ")}.`,
 			invalidUnion: (field: string) => `${field} must be one of the specified types.`,
 			invalidIntersection: (field: string) =>

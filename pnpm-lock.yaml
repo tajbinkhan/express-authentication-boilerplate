@@ -53,6 +53,9 @@ importers:
       jose:
         specifier: ^5.9.6
         version: 5.9.6
+      json-2-csv:
+        specifier: ^5.5.8
+        version: 5.5.8
       mongoose:
         specifier: ^8.10.1
         version: 8.10.1
@@ -1575,6 +1578,10 @@ packages:
       supports-color:
         optional: true
 
+  deeks@3.1.0:
+    resolution: {integrity: sha512-e7oWH1LzIdv/prMQ7pmlDlaVoL64glqzvNgkgQNgyec9ORPHrT2jaOqMtRyqJuwWjtfb6v+2rk9pmaHj+F137A==}
+    engines: {node: '>= 16'}
+
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
@@ -1592,6 +1599,10 @@ packages:
   detect-libc@2.0.3:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
     engines: {node: '>=8'}
+
+  doc-path@4.1.1:
+    resolution: {integrity: sha512-h1ErTglQAVv2gCnOpD3sFS6uolDbOKHDU1BZq+Kl3npPqroU3dYL42lUgMfd5UimlwtRgp7C9dLGwqQ5D2HYgQ==}
+    engines: {node: '>=16'}
 
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
@@ -2151,6 +2162,10 @@ packages:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
     hasBin: true
+
+  json-2-csv@5.5.8:
+    resolution: {integrity: sha512-eMQHOwV+av8Sgo+fkbEbQWOw/kwh89AZ5fNA8TYfcooG6TG1ZOL2WcPUrngIMIK8dBJitQ8QEU0zbncQ0CX4CQ==}
+    engines: {node: '>= 16'}
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
@@ -4258,6 +4273,8 @@ snapshots:
     optionalDependencies:
       supports-color: 5.5.0
 
+  deeks@3.1.0: {}
+
   deep-is@0.1.4: {}
 
   delegates@1.0.0: {}
@@ -4267,6 +4284,8 @@ snapshots:
   destroy@1.2.0: {}
 
   detect-libc@2.0.3: {}
+
+  doc-path@4.1.1: {}
 
   dotenv@16.4.7: {}
 
@@ -4885,6 +4904,11 @@ snapshots:
       argparse: 2.0.1
 
   jsesc@3.1.0: {}
+
+  json-2-csv@5.5.8:
+    dependencies:
+      deeks: 3.1.0
+      doc-path: 4.1.1
 
   json-buffer@3.0.1: {}
 
