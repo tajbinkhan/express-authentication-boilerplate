@@ -7,6 +7,7 @@ import passport from "passport";
 import path from "path";
 
 import { corsOptions } from "@/cors";
+import analysis from "@/databases/drizzle/analysis";
 import appLogger from "@/logger";
 import { uploadDir } from "@/multer/globalConfig";
 import "@/passport/passportCustom";
@@ -66,6 +67,13 @@ app.use(doubleCsrfProtection);
  * This is the default route for the server
  */
 indexRouter(app);
+
+/**
+ * Initialize query analysis
+ * This will analyze all queries made to the database
+ * This is to monitor the database
+ */
+analysis(app);
 
 /**
  * Initialize all routes are handled in the api.ts file
