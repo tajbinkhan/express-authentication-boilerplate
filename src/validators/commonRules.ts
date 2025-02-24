@@ -142,62 +142,12 @@ export const validateConfirmPassword = z
 	.min(1, zodMessages.error.required.fieldIsRequired("Confirm Password"))
 	.min(6, zodMessages.error.limit.stringMin("Confirm Password", 6))
 	.regex(new RegExp(".*[A-Z].*"), zodMessages.error.invalid.invalidUpperCase("Confirm Password"))
-
 	.regex(new RegExp(".*[a-z].*"), zodMessages.error.invalid.invalidLowerCase("Confirm Password"))
-
 	.regex(new RegExp(".*\\d.*"), zodMessages.error.invalid.invalidNumericCase("Confirm Password"));
 
-export const validateFile = (
-	name: string,
-	maxFileSize: number = MAX_FILE_SIZE,
-	acceptedImageTypes: string[] = ACCEPTED_IMAGE_TYPES
-) => {
-	return z
-		.any()
-		.refine(files => {
-			if (typeof files === "object") {
-				return files?.length === 1;
-			}
-			return true;
-		}, zodMessages.error.required.fieldIsRequired(name))
-		.refine(
-			files => {
-				if (typeof files === "object") {
-					return files?.[0]?.size <= maxFileSize;
-				}
-				return true;
-			},
-			`Max file size is ${convertBytesToMB(maxFileSize)}MB`
-		)
-		.refine(files => {
-			if (typeof files === "object") {
-				return acceptedImageTypes.includes(files?.[0]?.type);
-			}
-			return true;
-		}, ".jpg, .jpeg, .png and .webp files are accepted");
-};
-
-export const validateFiles = (
-	name: string,
-	limit: number,
-	maxFileSize: number = MAX_FILE_SIZE,
-	acceptedImageTypes: string[] = ACCEPTED_IMAGE_TYPES
-) => {
-	return z
-		.any()
-		.refine(files => files?.length >= 1, zodMessages.error.required.fieldIsRequired(name))
-		.refine(files => files?.length <= 5, zodMessages.error.limit.arrayMax(name, limit))
-		.refine(
-			files => {
-				return Object.keys(files).every(key => {
-					return files[key].size <= maxFileSize;
-				});
-			},
-			`Max file size is ${convertBytesToMB(maxFileSize)}MB`
-		)
-		.refine(files => {
-			return Object.keys(files).every(key => {
-				return acceptedImageTypes.includes(files[key].type);
-			});
-		}, ".jpg, .jpeg, .png and .webp files are accepted");
+export const validateBoolean = (name: string) => {
+	return z.boolean({
+		required_error: zodMessages.error.required.fieldIsRequired(name),
+		invalid_type_error: zodMessages.error.invalid.invalidBoolean(name)
+	});
 };
