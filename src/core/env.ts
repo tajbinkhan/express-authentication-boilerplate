@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { zodMessages } from "@/core/messages";
 import { validateEnum, validateString } from "@/validators/commonRules";
 
 export const googleEnvSchema = z.object({
@@ -21,6 +22,12 @@ export const envSchema = z.object({
 	MONGO_DATABASE_URL: validateString("MONGO_DATABASE_URL"),
 	PORT: validateString("PORT").refine(value => !isNaN(Number(value)), "PORT must be a number"),
 	SECRET: validateString("SECRET"),
+	ANALYSIS: validateString("ANALYSIS")
+		.refine(
+			value => value === "true" || value === "false",
+			zodMessages.error.invalid.invalidBoolean("ANALYSIS")
+		)
+		.transform(value => Boolean(value)),
 	NODE_ENV: validateEnum("NODE_ENV", ["development", "production"]),
 	JWT_COOKIE_NAME: validateString("JWT_COOKIE_NAME"),
 	SESSION_COOKIE_NAME: validateString("SESSION_COOKIE_NAME"),

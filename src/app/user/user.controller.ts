@@ -35,14 +35,7 @@ export default class UserController extends ApiController {
 				);
 			}
 
-			const data = await this.userService.retrieveUsers({
-				page: check.data.page,
-				limit: check.data.limit,
-				sortingMethod: check.data.sortingMethod,
-				sortBy: check.data.sortBy,
-				search: check.data.search,
-				roleQuery: check.data.roleQuery
-			});
+			const data = await this.userService.retrieveUsers(check.data);
 
 			return this.apiResponse.sendResponse(data);
 		} catch (error) {

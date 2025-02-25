@@ -24,12 +24,8 @@ export const UserQuerySchema = <T extends PgTableWithColumns<any>>(
 			roleQuery: data.roleQuery ? String(data.roleQuery).split(",") : undefined
 		}),
 		z.object({
-			page: z.number().optional(),
-			limit: z.number().optional(),
-			sortingMethod: z.string().optional(),
-			sortBy: z.string().optional(),
-			search: z.string().optional(),
-			roleQuery: z.array(z.string()).optional()
+			...baseSchema.innerType().shape,
+			roleQuery: z.array(validateString("Role Query")).optional()
 		})
 	);
 };

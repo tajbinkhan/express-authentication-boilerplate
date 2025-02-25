@@ -1,4 +1,4 @@
-import { and, count, ilike, inArray } from "drizzle-orm";
+import { and, count, gte, ilike, inArray, lte } from "drizzle-orm";
 import { Json2CsvOptions, json2csv } from "json-2-csv";
 
 import AuthenticationService from "@/app/authentication/authentication.service";
@@ -53,9 +53,20 @@ export default class UserService extends DrizzleService {
 				return await this.retrieveAllUsers(filter.sortingMethod, filter.sortBy);
 			}
 
+			// Create date objects from string inputs if they exist
+			const fromDate = filter.from ? new Date(filter.from) : undefined;
+			const toDate = filter.to ? new Date(filter.to) : undefined;
+
+			// If toDate exists, set it to the end of the day
+			if (toDate) {
+				toDate.setHours(23, 59, 59, 999);
+			}
+
 			const conditions = [
 				filter.search ? ilike(users.name, `%${filter.search}%`) : undefined,
-				filter.roleQuery ? inArray(users.role, filter.roleQuery as RoleType[]) : undefined
+				filter.roleQuery ? inArray(users.role, filter.roleQuery as RoleType[]) : undefined,
+				fromDate ? gte(users.createdAt, fromDate) : undefined,
+				toDate ? lte(users.createdAt, toDate) : undefined
 			].filter(Boolean);
 
 			const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
