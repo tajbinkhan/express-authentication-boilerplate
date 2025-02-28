@@ -1,10 +1,3 @@
-interface UserFilter {
-	page?: number;
-	limit?: number;
-	sortingMethod?: string;
-	sortBy?: string;
-	search?: string;
-	from?: string;
-	to?: string;
+interface UserFilter extends QueryFilterType {
 	roleQuery?: string[];
 }
