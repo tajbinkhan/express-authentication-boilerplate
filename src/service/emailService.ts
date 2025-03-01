@@ -1,60 +1,53 @@
-import ejs from "ejs";
+import handlebars from "handlebars";
 import nodemailer from "nodemailer";
-import path from "path";
 
-const __dirname = process.cwd();
-const templatesPath = path.join(__dirname, "public/templates");
+import { EmailTemplateSchemaType } from "@/databases/drizzle/types";
 
-interface EmailService {
+interface EmailService<T> {
 	email: string;
-	emailSubject: string;
-	template: string;
-	data?: any;
+	template: EmailTemplateSchemaType;
+	data?: T;
 	user?: string;
 	password?: string;
 	emailFrom?: string;
 }
 
-const sendEmail = async ({
+const sendEmail = async <T>({
 	email,
-	emailSubject,
 	template,
 	data,
 	user = process.env.EMAIL_SERVER_USER,
 	password = process.env.EMAIL_SERVER_PASSWORD,
 	emailFrom = process.env.EMAIL_FROM
-}: EmailService) => {
-	// Configure your email transporter (replace placeholders with actual values)
-	const transporter = nodemailer.createTransport({
-		host: process.env.EMAIL_SERVER_HOST,
-		port: Number(process.env.EMAIL_SERVER_PORT),
-		auth: {
-			user,
-			pass: password
-		},
-		secure: false
-	});
-
-	const html = await ejs.renderFile(path.join(templatesPath, `${template}.ejs`), data, {
-		async: true
-	});
-
-	// Email content
-	const mailOptions = {
-		from: emailFrom,
-		to: email,
-		reply_to: emailFrom,
-		subject: emailSubject,
-		html
-	};
-
-	// Send the email
+}: EmailService<T>) => {
 	try {
+		// Compile Handlebars template
+		const compiledTemplate = handlebars.compile(template.html);
+		const html = compiledTemplate(data);
+
+		// Nodemailer transporter
+		const transporter = nodemailer.createTransport({
+			host: process.env.EMAIL_SERVER_HOST,
+			port: Number(process.env.EMAIL_SERVER_PORT),
+			auth: { user, pass: password },
+			secure: process.env.EMAIL_SERVER_PORT === "465"
+		});
+
+		// Email content
+		const mailOptions = {
+			from: emailFrom,
+			to: email,
+			subject: template.subject,
+			html
+		};
+
+		// Send the email
 		const report = await transporter.sendMail(mailOptions);
 		console.log("Email sent: %s", report.messageId);
-		return Promise.resolve(report);
+		return report;
 	} catch (error) {
-		return Promise.reject(error);
+		console.error("Error sending email:", error);
+		throw error;
 	}
 };
 

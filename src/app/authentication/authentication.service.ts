@@ -8,22 +8,11 @@ import { sessionTimeout } from "@/core/constants";
 import DrizzleService from "@/databases/drizzle/service";
 import { AccountSchemaType, UserSchemaType } from "@/databases/drizzle/types";
 import { accounts, users } from "@/models/drizzle/authentication.model";
-import OTPEmailService from "@/service/otpService";
 import AppHelpers from "@/utils/appHelpers";
 import { ServiceApiResponse, ServiceResponse } from "@/utils/serviceApi";
 import { status } from "@/utils/statusCodes";
 
 export default class AuthenticationService extends DrizzleService {
-	protected otpService: OTPEmailService;
-
-	/**
-	 * Constructor for AuthenticationService
-	 */
-	constructor() {
-		super();
-		this.otpService = new OTPEmailService();
-	}
-
 	async createUser(
 		data: CreateUserType
 	): Promise<ServiceApiResponse<Omit<UserSchemaType, "password">>> {

@@ -11,6 +11,7 @@ import {
 	UsernameLoginSchema,
 	UsernameLoginWithOTPSchema
 } from "@/app/authentication/authentication.validator";
+import EmailTemplateService from "@/app/emailTemplate/emailTemplate.service";
 
 import { ApiController } from "@/controllers/base/api.controller";
 import { TOKEN_LIST } from "@/databases/drizzle/lists";
@@ -25,6 +26,7 @@ export default class AuthenticationController extends ApiController {
 	protected authenticationService: AuthenticationService;
 	protected otpService: OTPService;
 	protected cookieService: CookieService;
+	protected emailTemplateService: EmailTemplateService;
 
 	/**
 	 * Construct the controller
@@ -37,6 +39,7 @@ export default class AuthenticationController extends ApiController {
 		this.authenticationService = new AuthenticationService();
 		this.otpService = new OTPService();
 		this.cookieService = new CookieService(request, response);
+		this.emailTemplateService = new EmailTemplateService();
 	}
 
 	async register(): Promise<Response> {
@@ -58,10 +61,13 @@ export default class AuthenticationController extends ApiController {
 			const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.EMAIL_VERIFICATION);
 
 			if (otp && user.data.email) {
+				const template = await this.emailTemplateService.retrieveEmailTemplate(
+					"account_verification_otp"
+				);
+
 				sendEmail({
 					email: user.data.email,
-					emailSubject: "Your account verification OTP",
-					template: "otpEmailTemplate",
+					template: template.data,
 					data: {
 						username: user.data.username,
 						otp,
@@ -251,10 +257,11 @@ export default class AuthenticationController extends ApiController {
 				const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.LOGIN_OTP);
 
 				if (otp && user.data.email) {
+					const template = await this.emailTemplateService.retrieveEmailTemplate("login_otp");
+
 					sendEmail({
 						email: user.data.email,
-						emailSubject: "Login OTP",
-						template: "otpEmailTemplate",
+						template: template.data,
 						data: {
 							username: user.data.username,
 							otp,
@@ -302,10 +309,12 @@ export default class AuthenticationController extends ApiController {
 			const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.PASSWORD_RESET);
 
 			if (otp && user.data.email) {
+				const template =
+					await this.emailTemplateService.retrieveEmailTemplate("password_reset_otp");
+
 				sendEmail({
 					email: user.data.email,
-					emailSubject: "Your password reset OTP",
-					template: "otpEmailTemplate",
+					template: template.data,
 					data: {
 						username: user.data.username,
 						otp,
@@ -377,10 +386,13 @@ export default class AuthenticationController extends ApiController {
 			const otp = await this.otpService.saveOTPToDatabase(user.data, TOKEN_LIST.EMAIL_VERIFICATION);
 
 			if (otp && user.data.email) {
+				const template = await this.emailTemplateService.retrieveEmailTemplate(
+					"account_verification_otp"
+				);
+
 				sendEmail({
 					email: user.data.email,
-					emailSubject: "Your account verification OTP",
-					template: "otpEmailTemplate",
+					template: template.data,
 					data: {
 						username: user.data.username,
 						otp,

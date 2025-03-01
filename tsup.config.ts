@@ -5,6 +5,5 @@ export default defineConfig({
 	splitting: false,
 	sourcemap: true,
 	clean: true,
-	define: { "process.env.NODE_ENV": "'production'" },
-	loader: { ".ejs": "copy" }
+	define: { "process.env.NODE_ENV": "'production'" }
 });
