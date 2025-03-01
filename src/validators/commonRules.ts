@@ -2,12 +2,7 @@ import { z } from "zod";
 
 import { zodMessages } from "@/core/messages";
 
-const convertBytesToMB = (bytes: number): number => {
-	return bytes / 1024 / 1024;
-};
-
-export const MAX_FILE_SIZE = 2000000;
-export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+export const phoneWithCountryCodeRegex = /^\+?[1-9]\d{1,14}$/;
 
 export const validateString = (name: string) => {
 	return z
@@ -73,8 +68,8 @@ export const validateSelectObject = (name: string) => {
 		.or(z.null());
 };
 
-export const validateEnum = (name: string, values: string[]) => {
-	return z.enum(values as [string, ...string[]], {
+export const validateEnum = <T extends readonly [string, ...string[]]>(name: string, values: T) => {
+	return z.enum(values, {
 		required_error: zodMessages.error.required.fieldIsRequired(name),
 		invalid_type_error: zodMessages.error.invalid.invalidEnum(name, values)
 	});
@@ -94,6 +89,20 @@ export const validateEmail = z
 	})
 	.min(1, zodMessages.error.required.fieldIsRequired("Email"))
 	.email(zodMessages.error.invalid.invalidEmail("Email"));
+
+export const validatePhoneNumber = (name: string) => {
+	return z
+		.string({
+			required_error: zodMessages.error.required.fieldIsRequired(name),
+			invalid_type_error: zodMessages.error.invalid.invalidString(name)
+		})
+		.min(1, zodMessages.error.required.fieldIsRequired(name))
+		.refine(
+			value => phoneWithCountryCodeRegex.test(value),
+			zodMessages.error.invalid.invalidPhoneNumber(name)
+		)
+		.transform(value => String(value).trim());
+};
 
 export const validateUsernameOrEmail = z
 	.string({
