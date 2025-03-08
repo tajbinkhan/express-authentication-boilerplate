@@ -19,6 +19,7 @@ import { UserSchemaType } from "@/databases/drizzle/types";
 import CookieService from "@/service/cookieService";
 import sendEmail from "@/service/emailService";
 import OTPService from "@/service/otpService";
+import originStore from "@/utils/originStore";
 import { ServiceApiResponse } from "@/utils/serviceApi";
 import { status } from "@/utils/statusCodes";
 
@@ -168,14 +169,9 @@ export default class AuthenticationController extends ApiController {
 
 			await this.cookieService.saveCookieToBrowser(user!);
 
-			const appUrl = process.env.APP_URL + "?success=Google";
+			const appUrl = originStore.getClientDomain() + "?success=Google";
 
 			return this.response.redirect(appUrl);
-
-			// return this.apiResponse.successResponse("Login successful", {
-			// 	user: user,
-			// 	token: accessToken
-			// });
 		} catch (error) {
 			return this.apiResponse.sendResponse(error as ServiceApiResponse<unknown>);
 		}
@@ -201,7 +197,7 @@ export default class AuthenticationController extends ApiController {
 	async getSession(): Promise<Response> {
 		try {
 			const { user } = this.request;
-			if (!user) return this.apiResponse.unauthorizedResponse("Unauthorized: Not authenticated");
+			if (!user) return this.apiResponse.successResponse("No session found");
 
 			return this.apiResponse.successResponse("Authorized", user);
 		} catch (error) {

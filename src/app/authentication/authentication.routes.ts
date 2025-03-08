@@ -9,7 +9,7 @@ export const authenticationRouter: Router = (() => {
 	const router = express.Router();
 
 	// Get current user route
-	router.get("/me", authenticationMiddleware, (req, res) => {
+	router.get("/me", (req, res) => {
 		new AuthenticationController(req, res).getSession();
 	});
 

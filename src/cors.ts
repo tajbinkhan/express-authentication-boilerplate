@@ -1,7 +1,5 @@
 import { CorsOptions } from "cors";
 
-import originStore from "@/utils/originStore";
-
 // CORS configuration with options
 export const corsOptions: CorsOptions = {
 	origin: function (
@@ -9,9 +7,6 @@ export const corsOptions: CorsOptions = {
 		callback: (err: Error | null, allow?: boolean) => void
 	) {
 		if (!origin || process.env.ORIGIN_URL.split(",").includes(origin)) {
-			if (origin) {
-				originStore.setOriginUrl(origin);
-			}
 			callback(null, true);
 		} else {
 			callback(new Error("Not allowed by CORS"));

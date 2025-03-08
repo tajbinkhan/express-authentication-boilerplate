@@ -1,123 +1,167 @@
-# Express Authentication Server
+# Express Authentication Boilerplate
 
-A secure authentication server built with Express.js featuring comprehensive security measures and
-modern authentication capabilities.
+A comprehensive authentication system built with Express.js and TypeScript, providing
+enterprise-grade security features and multiple authentication strategies.
 
 ## Features
 
-- 🔐 **Authentication**
+- **Multiple Authentication Methods**
 
-  - Local authentication with Passport.js
+  - Local authentication (username/email + password)
   - Google OAuth 2.0 integration
-  - JWT token-based authentication
+  - JWT-based authentication
   - Session-based authentication
-  - Custom authentication strategies
 
-- 🛡️ **Security**
+- **Database Support**
 
+  - PostgreSQL integration with Drizzle ORM
+  - Database migration and seeding tools
+
+- **Security Features**
+
+  - Password hashing with bcrypt
   - CSRF protection
-  - Helmet security headers
   - Rate limiting
-  - CORS configuration
-  - Secure cookie handling
+  - Helmet security headers
   - Input validation with Zod
+  - Secure cookie handling
 
-- 📦 **Database**
+- **User Management**
 
-  - PostgreSQL with Drizzle ORM
-  - MongoDB with Mongoose
-  - Database migrations
-  - Seeding support
-  - Studio for database management
+  - User registration and authentication
+  - Role-based access control
+  - Password reset functionality
+  - Email verification
+  - Account management
 
-- 🔧 **Core Features**
+- **Developer Experience**
   - TypeScript support
-  - WebSocket support (Socket.IO)
-  - File upload handling with Multer
-  - Image processing with Sharp
-  - Email sending with Nodemailer
-  - Environment configuration
-  - ESLint + Prettier code quality
-  - Husky git hooks
+  - Nodemon for development
+  - ESLint and Prettier configuration
+  - Husky pre-commit hooks
+  - Comprehensive tooling for database management
 
-## Getting Started
+## Tech Stack
 
-### Prerequisites
+- **Backend**: Node.js, Express
+- **Language**: TypeScript
+- **Authentication**: Passport.js, JWT
+- **Database**: PostgreSQL (with Drizzle ORM)
+- **Email**: Nodemailer
+- **Image Processing**: Sharp
+- **Validation**: Zod
+- **Development Tools**: ESLint, Prettier, Husky, Lint-staged
 
-- Node.js (18+)
-- PostgreSQL
-- MongoDB
-- pnpm (recommended)
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
+## Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/express-authentication-boilerplate.git
+
+# Navigate to the project directory
+cd express-authentication-boilerplate
+
+# Install dependencies
+npm install
+# or
 pnpm install
 ```
 
-3. Copy `.env.example` to `.env` and configure your environment variables
+## Environment Setup
 
-4. Initialize the database:
+Configure your environment variables in the `.env` file:
 
-```bash
-pnpm db:generate   # Generate migrations
-pnpm db:push      # Push schema to database
-pnpm db:seed      # Seed initial data
 ```
+# Database Configuration
+DATABASE_URL="your-postgres-connection-string"
 
-5. Start development server:
+# Server Configuration
+PORT="8080"
+NODE_ENV="development"
 
-```bash
-pnpm dev
+# Session & JWT Configuration
+SECRET="your-secret-key"
+JWT_COOKIE_NAME="jwt-token"
+SESSION_COOKIE_NAME="session-id"
+
+# CORS Configuration
+ORIGIN_URL="http://localhost:3000"
+API_URL="http://localhost:8080"
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+GOOGLE_CALLBACK_URL="http://localhost:8080/auth/google/callback"
+
+# Email Configuration
+EMAIL_SERVER_HOST="smtp.example.com"
+EMAIL_SERVER_USER="your-email@example.com"
+EMAIL_SERVER_PASSWORD="your-email-password"
+EMAIL_SERVER_PORT="587"
+EMAIL_FROM="Your Name <your-email@example.com>"
 ```
 
 ## Available Scripts
 
 ```bash
-pnpm build          # Build for production
-pnpm start          # Start production server
-pnpm dev            # Start development server
-pnpm format         # Format code with Prettier
-pnpm lint           # Lint code with ESLint
-pnpm type-check     # Check TypeScript types
-pnpm db:studio      # Open Drizzle database studio
-pnpm db:generate    # Generate database migrations
-pnpm db:migrate     # Run database migrations
-pnpm db:push        # Push schema changes
-pnpm db:seed        # Seed database
+# Development mode
+npm run dev
+
+# Build the project
+npm run build
+
+# Start production server
+npm start
+
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+
+# Type checking
+npm run type-check
+
+# Database operations
+npm run db:studio        # Open Drizzle Studio
+npm run db:generate      # Generate migrations
+npm run db:migrate       # Run migrations
+npm run db:push          # Push schema changes
+npm run db:clear         # Clear database
+npm run db:seed          # Seed database
 ```
 
-## Technology Stack
+## API Endpoints
 
-- **Framework**: Express.js
-- **Language**: TypeScript
-- **Databases**:
-  - PostgreSQL (Drizzle ORM)
-  - MongoDB (Mongoose)
-- **Authentication**:
-  - Passport.js
-  - JWT (jose)
-  - Session
-- **Security**:
-  - Helmet
-  - CSRF-CSRF
-  - Express Rate Limit
-  - CORS
-- **Utils**:
-  - Socket.IO
-  - Sharp
-  - Nodemailer
-  - Multer
-  - Zod
-- **Development**:
-  - ESLint
-  - Prettier
-  - Husky
-  - lint-staged
-  - tsx/tsup
+### Authentication
+
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Authenticate a user
+- `GET /auth/logout` - Log out a user
+- `POST /auth/forgot-password` - Request password reset
+- `POST /auth/reset-password` - Reset password with token
+- `GET /auth/verify-email/:token` - Verify email address
+- `GET /auth/me` - Get current user information
+- `GET /auth/google` - Google OAuth authentication
+- `GET /auth/google/callback` - Google OAuth callback
+
+## Database Management
+
+The project uses Drizzle ORM for database operations, providing:
+
+- Type-safe SQL query building
+- Migrations management
+- Database schema visualization with Drizzle Studio
+- Seeding capabilities for development
+
+## Security Implementations
+
+- **Password Security**: Passwords are hashed using bcrypt
+- **CSRF Protection**: Using csrf-csrf package
+- **XSS Prevention**: Helmet security headers
+- **Rate Limiting**: Express rate limiter to prevent brute force attacks
+- **Input Validation**: Schema validation with Zod
+- **Secure Cookies**: HTTP-only, secure cookies for tokens and sessions
 
 ## Contributing
 

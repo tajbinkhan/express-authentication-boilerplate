@@ -17,6 +17,7 @@ import indexRouter from "@/routes/index.route";
 import appRouter from "@/routes/routes.config";
 import sessionConfig from "@/session";
 import { doubleCsrfProtection } from "@/utils/csrf";
+import domainStore from "@/utils/domainStore";
 import { notFoundHandler, serverErrorHandler } from "@/utils/errorHandler";
 
 dotenv.config();
@@ -43,6 +44,13 @@ appLogger(app);
  * This is to prevent abuse of the server
  */
 appRateLimiter(app);
+
+/**
+ * Store client and server domain
+ * This is used to store the client and server domain
+ * This is used for authentication
+ */
+app.use(domainStore);
 
 /**
  * Initialize session

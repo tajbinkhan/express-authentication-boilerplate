@@ -1,6 +1,8 @@
 import * as crypto from "crypto";
 import { CookieOptions } from "express";
 
+import originStore from "@/utils/originStore";
+
 interface SameSiteCookieConfig {
 	sameSite: CookieOptions["sameSite"];
 	secure: boolean;
@@ -107,55 +109,93 @@ export default class AppHelpers {
 	 */
 	static sameSiteCookieConfig(): SameSiteCookieConfig {
 		try {
-			const appUrl = process.env.APP_URL;
-			const apiUrl =
-				process.env.NODE_ENV === "production"
-					? process.env.API_URL
-					: `http://localhost:${process.env.PORT}`;
+			if (process.env.COOKIE_SETTINGS === "locally") {
+				return {
+					sameSite: "lax",
+					secure: false
+				};
+			}
+			const appUrl = originStore.getClientDomain();
+			const apiUrl = originStore.getServerDomain() || process.env.API_URL;
+
+			if (!appUrl) {
+				return {
+					sameSite: "none",
+					secure: true
+				};
+			}
 
 			const appUrlObj = new URL(appUrl);
 			const apiUrlObj = new URL(apiUrl);
 
-			// Extract the base domain (excluding subdomains)
+			let isSecure = apiUrlObj.protocol === "https:";
+
+			// Function to determine if it's an IP address
+			const isIpAddress = (hostname: string) => {
+				return /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+			};
+
+			// Function to get domain without port
+			const getDomain = (hostname: string) => {
+				return hostname.split(":")[0];
+			};
+
+			// Better base domain extraction that handles special cases
 			const getBaseDomain = (hostname: string) => {
-				const parts = hostname.split(".");
+				const domain = getDomain(hostname);
+
+				// Handle special cases
+				if (domain === "localhost" || isIpAddress(domain)) {
+					return domain;
+				}
+
+				const parts = domain.split(".");
+				// Need at least 2 parts for a valid domain
+				if (parts.length < 2) return domain;
+
+				// Return last two parts for normal domains
 				return parts.slice(-2).join(".");
 			};
 
 			const appBaseDomain = getBaseDomain(appUrlObj.hostname);
 			const apiBaseDomain = getBaseDomain(apiUrlObj.hostname);
 
-			const isSecure = appUrlObj.protocol === "https:" || apiUrlObj.protocol === "https:";
-
-			// Determine domain value - only set if on same base domain
+			// Determine domain and sameSite
 			let domain: string | undefined;
-			if (appBaseDomain === apiBaseDomain && !appUrlObj.hostname.includes("localhost")) {
-				domain = "." + appBaseDomain;
-			}
-
-			// For localhost, set the exact hostname
-			if (apiUrlObj.hostname.includes("localhost")) {
-				domain = apiUrlObj.hostname;
-			}
-
-			// Determine sameSite value
 			let sameSite: CookieOptions["sameSite"];
-			if (appBaseDomain === apiBaseDomain) {
-				sameSite = "strict";
-			} else if (
-				appUrlObj.hostname.includes("localhost") &&
-				apiUrlObj.hostname.includes("localhost")
-			) {
+
+			// Same exact hostname
+			if (getDomain(appUrlObj.hostname) === getDomain(apiUrlObj.hostname)) {
+				domain = getDomain(apiUrlObj.hostname);
 				sameSite = "lax";
-			} else {
+			}
+			// Same base domain (different subdomains)
+			else if (
+				appBaseDomain === apiBaseDomain &&
+				!isIpAddress(appBaseDomain) &&
+				appBaseDomain !== "localhost"
+			) {
+				domain = "." + appBaseDomain;
+				sameSite = "lax";
+			}
+			// Different domains
+			else {
+				domain = getDomain(apiUrlObj.hostname);
 				sameSite = "none";
 			}
 
-			return {
+			// If sameSite is "none", secure must be true
+			if (sameSite === "none") {
+				isSecure = true;
+			}
+
+			const cookieSetting = {
 				sameSite,
 				secure: isSecure,
 				domain
 			};
+
+			return cookieSetting;
 		} catch (error) {
 			return {
 				sameSite: "lax",

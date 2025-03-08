@@ -12,9 +12,9 @@ const {
 	getSecret: () => process.env.SECRET, // Secret for generating tokens
 	cookieName: "csrf-token", // Cookie name for the token
 	cookieOptions: {
-		maxAge: csrfTimeout,
 		sameSite: AppHelpers.sameSiteCookieConfig().sameSite,
 		secure: AppHelpers.sameSiteCookieConfig().secure,
+		maxAge: csrfTimeout,
 		...(AppHelpers.sameSiteCookieConfig().domain && {
 			domain: AppHelpers.sameSiteCookieConfig().domain
 		})

@@ -1,12 +1,21 @@
 class OriginStore {
-	private originUrl: string | null = null;
+	private clientDomain: string | null = null;
+	private serverDomain: string | null = null;
 
-	setOriginUrl(url: string) {
-		this.originUrl = url;
+	setClientDomain(url: string) {
+		this.clientDomain = url;
 	}
 
-	getOriginUrl(): string | null {
-		return this.originUrl;
+	getClientDomain(): string | null {
+		return this.clientDomain;
+	}
+
+	setServerDomain(url: string) {
+		this.serverDomain = url;
+	}
+
+	getServerDomain(): string | null {
+		return this.serverDomain;
 	}
 }
 
