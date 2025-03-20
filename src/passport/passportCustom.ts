@@ -8,7 +8,7 @@ import AuthenticationService from "@/app/authentication/authentication.service";
 import { status } from "@/utils/statusCodes";
 
 const authenticationService = new AuthenticationService();
-const jwtTokenName = process.env.SESSION_COOKIE_NAME;
+const jwtTokenName = process.env.JWT_COOKIE_NAME;
 
 passport.serializeUser(async (user, done) => {
 	try {
@@ -48,29 +48,3 @@ export default passport.use(
 		}
 	})
 );
-
-// export const jwtRouteProtection = (req: Request, res: Response, next: NextFunction) => {
-// 	passport.authenticate("jwtAuthentication", (err: any, user: Express.User) => {
-// 		const apiResponse = new ApiResponse(res);
-// 		if (err) {
-// 			return apiResponse.sendResponse({
-// 				status: err.status,
-// 				message: err.message
-// 			});
-// 		}
-// 		if (!user) {
-// 			return apiResponse.sendResponse({
-// 				status: status.HTTP_401_UNAUTHORIZED,
-// 				message: "Unauthorized"
-// 			});
-// 		}
-
-// 		if (!req.isAuthenticated())
-// 			return apiResponse.sendResponse({
-// 				status: status.HTTP_401_UNAUTHORIZED,
-// 				message: "Session expired or not found"
-// 			});
-
-// 		next();
-// 	})(req, res, next);
-// };

@@ -10,12 +10,6 @@ const sessionConfig = session({
 	saveUninitialized: false,
 	resave: false,
 	store: new DrizzleSessionStore(),
-	// cookie: {
-	// 	sameSite: "lax",
-	// 	secure: false,
-	// 	maxAge: sessionTimeout,
-	// 	domain: "localhost"
-	// }
 	cookie: {
 		sameSite: AppHelpers.sameSiteCookieConfig().sameSite,
 		secure: AppHelpers.sameSiteCookieConfig().secure,
