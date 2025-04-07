@@ -1,16 +1,4 @@
 {
 	"version": 2,
-	"outputDirectory": "dist",
-	"builds": [
-		{
-			"src": "package.json",
-			"use": "@vercel/node"
-		}
-	],
-	"routes": [
-		{
-			"src": "/(.*)",
-			"dest": "dist/src/server.cjs"
-		}
-	]
+	"rewrites": [{ "source": "/(.*)", "destination": "dist" }]
 }
