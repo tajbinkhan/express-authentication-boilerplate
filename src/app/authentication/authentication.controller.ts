@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 
 import AuthenticationService from "@/app/authentication/authentication.service";
 import {
@@ -21,7 +22,6 @@ import sendEmail from "@/service/emailService";
 import OTPService from "@/service/otpService";
 import originStore from "@/utils/originStore";
 import { ServiceApiResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 export default class AuthenticationController extends ApiController {
 	protected authenticationService: AuthenticationService;
@@ -103,7 +103,7 @@ export default class AuthenticationController extends ApiController {
 			this.request.login(user.data, err => {
 				if (err) {
 					return this.apiResponse.sendResponse({
-						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+						status: StatusCodes.INTERNAL_SERVER_ERROR,
 						message: "Login failed"
 					});
 				}
@@ -146,7 +146,7 @@ export default class AuthenticationController extends ApiController {
 			this.request.login(user.data, err => {
 				if (err) {
 					return this.apiResponse.sendResponse({
-						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+						status: StatusCodes.INTERNAL_SERVER_ERROR,
 						message: "Login failed"
 					});
 				}
@@ -182,7 +182,7 @@ export default class AuthenticationController extends ApiController {
 			this.request.session.destroy(err => {
 				if (err) {
 					return this.apiResponse.sendResponse({
-						status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+						status: StatusCodes.INTERNAL_SERVER_ERROR,
 						message: "Error logging out"
 					});
 				}
@@ -221,7 +221,7 @@ export default class AuthenticationController extends ApiController {
 				this.request.session.destroy(err => {
 					if (err) {
 						return this.apiResponse.sendResponse({
-							status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+							status: StatusCodes.INTERNAL_SERVER_ERROR,
 							message: "Error logging out"
 						});
 					}

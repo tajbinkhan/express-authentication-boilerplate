@@ -1,11 +1,11 @@
 import { InferSelectModel, desc, eq } from "drizzle-orm";
+import { StatusCodes } from "http-status-codes";
 
 import { TodoServerSchemaType } from "@/app/todo/todo.validators";
 
 import DrizzleService from "@/databases/drizzle/service";
 import { todo } from "@/models/drizzle/todo.model";
 import { ServiceApiResponse, ServiceResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 export type TodoSchemaType = InferSelectModel<typeof todo>;
 
@@ -16,14 +16,14 @@ export default class TodoService extends DrizzleService {
 
 			if (!createdData.length) {
 				return ServiceResponse.createResponse(
-					status.HTTP_406_NOT_ACCEPTABLE,
+					StatusCodes.BAD_REQUEST,
 					"Invalid todo data",
 					createdData[0]
 				);
 			}
 
 			return ServiceResponse.createResponse(
-				status.HTTP_201_CREATED,
+				StatusCodes.CREATED,
 				"Todo created successfully",
 				createdData[0]
 			);
@@ -37,11 +37,11 @@ export default class TodoService extends DrizzleService {
 			const retrieveData = await this.db.query.todo.findFirst({ where: eq(todo.id, id) });
 
 			if (!retrieveData) {
-				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "Todo not found");
+				return ServiceResponse.createRejectResponse(StatusCodes.NOT_FOUND, "Todo not found");
 			}
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"Todo retrieved successfully",
 				retrieveData
 			);
@@ -56,14 +56,14 @@ export default class TodoService extends DrizzleService {
 
 			if (!updatedData.length) {
 				return ServiceResponse.createResponse(
-					status.HTTP_406_NOT_ACCEPTABLE,
+					StatusCodes.BAD_REQUEST,
 					"Invalid todo id",
 					updatedData[0]
 				);
 			}
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"Todo updated successfully",
 				updatedData[0]
 			);
@@ -79,7 +79,7 @@ export default class TodoService extends DrizzleService {
 			});
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"Todo retrieved successfully",
 				retrieveData
 			);
@@ -90,10 +90,7 @@ export default class TodoService extends DrizzleService {
 
 	async testTodo(id: number) {
 		try {
-			return ServiceResponse.createRejectResponse(
-				status.HTTP_406_NOT_ACCEPTABLE,
-				"Todo not accept"
-			);
+			return ServiceResponse.createRejectResponse(StatusCodes.BAD_REQUEST, "Todo not accept");
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}

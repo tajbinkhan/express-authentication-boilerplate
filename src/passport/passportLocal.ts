@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import passport from "passport";
 import { Strategy } from "passport-local";
 
@@ -8,7 +9,6 @@ import db from "@/databases/drizzle/connection";
 import { sessions } from "@/models/drizzle/authentication.model";
 import AppHelpers from "@/utils/appHelpers";
 import { ApiResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 const authenticationService = new AuthenticationService();
 
@@ -55,7 +55,7 @@ export const localAuthentication = (req: Request, res: Response, next: NextFunct
 			// If there is an error in logging in
 			if (loginErr)
 				return apiResponse.sendResponse({
-					status: status.HTTP_400_BAD_REQUEST,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
 					message: "Login Failed"
 				});
 

@@ -1,11 +1,10 @@
 import { Request } from "express";
+import { StatusCodes } from "http-status-codes";
 import passport from "passport";
 import { Strategy as CustomStrategy, VerifiedCallback } from "passport-custom";
 
 import { decode } from "@/app/authentication/authentication.JWT";
 import AuthenticationService from "@/app/authentication/authentication.service";
-
-import { status } from "@/utils/statusCodes";
 
 const authenticationService = new AuthenticationService();
 const jwtTokenName = process.env.JWT_COOKIE_NAME;
@@ -32,13 +31,12 @@ export default passport.use(
 	new CustomStrategy(async (req: Request, done: VerifiedCallback) => {
 		try {
 			const token = req.cookies[jwtTokenName];
-			if (!token)
-				return done({ status: status.HTTP_403_FORBIDDEN, message: "Token not found" }, false);
+			if (!token) return done({ status: StatusCodes.FORBIDDEN, message: "Token not found" }, false);
 
 			const decodeToken = await decode({ token });
 
 			if (!decodeToken)
-				return done({ status: status.HTTP_403_FORBIDDEN, message: "Token not found" }, false);
+				return done({ status: StatusCodes.FORBIDDEN, message: "Token not found" }, false);
 
 			const findUser = await authenticationService.findUserByUsername(String(decodeToken.username));
 

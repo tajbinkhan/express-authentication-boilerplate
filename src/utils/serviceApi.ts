@@ -1,9 +1,8 @@
 import { Response } from "express";
-
-import { status } from "@/utils/statusCodes";
+import { StatusCodes } from "http-status-codes";
 
 // Create a type from the status object values
-type HttpStatusCode = (typeof status)[keyof typeof status];
+type HttpStatusCode = number;
 
 // Stricter Pagination interface with required fields
 export interface Pagination {
@@ -51,7 +50,7 @@ const isApiError = (error: unknown): error is ApiError => {
 	);
 };
 
-const NO_CONTENT_STATUSES = new Set([status.HTTP_204_NO_DATA]);
+const NO_CONTENT_STATUSES = new Set([StatusCodes.NO_CONTENT]);
 
 export class ServiceResponse {
 	static async createResponse<T>(
@@ -79,7 +78,7 @@ export class ServiceResponse {
 		if (isApiError(error)) return Promise.reject(error);
 
 		return Promise.reject({
-			status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+			status: StatusCodes.INTERNAL_SERVER_ERROR,
 			message: "Internal Server Error"
 		});
 	}
@@ -94,7 +93,7 @@ export class ApiResponse {
 
 	successResponse<T>(message: string, data?: T, pagination?: Pagination) {
 		return this.sendResponse<T>({
-			status: status.HTTP_200_OK,
+			status: StatusCodes.OK,
 			message,
 			data,
 			pagination
@@ -103,28 +102,28 @@ export class ApiResponse {
 
 	unauthorizedResponse(message: string) {
 		return this.sendResponse({
-			status: status.HTTP_401_UNAUTHORIZED,
+			status: StatusCodes.UNAUTHORIZED,
 			message
 		});
 	}
 
 	forbiddenResponse(message: string) {
 		return this.sendResponse({
-			status: status.HTTP_403_FORBIDDEN,
+			status: StatusCodes.FORBIDDEN,
 			message
 		});
 	}
 
 	badResponse(message: string) {
 		return this.sendResponse({
-			status: status.HTTP_400_BAD_REQUEST,
+			status: StatusCodes.BAD_REQUEST,
 			message
 		});
 	}
 
 	internalServerError(message: string = "Internal Server Error") {
 		return this.sendResponse({
-			status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+			status: StatusCodes.INTERNAL_SERVER_ERROR,
 			message
 		});
 	}

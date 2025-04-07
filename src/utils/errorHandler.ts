@@ -1,9 +1,9 @@
 import { Express, NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 
 import { invalidCsrfTokenError } from "@/utils/csrf";
 import { ApiResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 export function serverErrorHandler(app: Express) {
 	// Add handler for unhandled promise rejections
@@ -61,7 +61,7 @@ export function serverErrorHandler(app: Express) {
 export function notFoundHandler(app: Express) {
 	app.use((req: Request, res: Response) => {
 		res
-			.status(status.HTTP_404_NOT_FOUND)
+			.status(StatusCodes.NOT_FOUND)
 			.send(
 				`${req.method} method is not allowed or the route does not exist. Please check your URL and method and try again.`
 			);

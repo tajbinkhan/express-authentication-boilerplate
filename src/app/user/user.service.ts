@@ -1,4 +1,5 @@
 import { and, count, gte, ilike, inArray, lte } from "drizzle-orm";
+import { StatusCodes } from "http-status-codes";
 import { Json2CsvOptions, json2csv } from "json-2-csv";
 
 import AuthenticationService from "@/app/authentication/authentication.service";
@@ -9,7 +10,6 @@ import { RoleType, UserSchemaType } from "@/databases/drizzle/types";
 import { users } from "@/models/drizzle/authentication.model";
 import { ServiceApiResponse, ServiceResponse } from "@/utils/serviceApi";
 import { SortingHelper } from "@/utils/sortingHelper";
-import { status } from "@/utils/statusCodes";
 
 export default class UserService extends DrizzleService {
 	private sortingHelper: SortingHelper<typeof users>;
@@ -34,7 +34,7 @@ export default class UserService extends DrizzleService {
 			const { password, ...userData } = user[0];
 
 			return ServiceResponse.createResponse(
-				status.HTTP_201_CREATED,
+				StatusCodes.CREATED,
 				"User created successfully",
 				userData
 			);
@@ -94,7 +94,7 @@ export default class UserService extends DrizzleService {
 			});
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"Users retrieved successfully",
 				data,
 				pagination
@@ -108,7 +108,7 @@ export default class UserService extends DrizzleService {
 		try {
 			await this.db.delete(users).where(inArray(users.id, ids));
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "Users deleted successfully", true);
+			return ServiceResponse.createResponse(StatusCodes.OK, "Users deleted successfully", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -118,11 +118,7 @@ export default class UserService extends DrizzleService {
 		try {
 			await this.db.delete(users);
 
-			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
-				"All users deleted successfully",
-				true
-			);
+			return ServiceResponse.createResponse(StatusCodes.OK, "All users deleted successfully", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -143,7 +139,7 @@ export default class UserService extends DrizzleService {
 			const csvContent = json2csv(usersResponse.data, options);
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"CSV file generated successfully",
 				csvContent
 			);
@@ -164,11 +160,7 @@ export default class UserService extends DrizzleService {
 				orderBy
 			});
 
-			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
-				"Users retrieved successfully",
-				data
-			);
+			return ServiceResponse.createResponse(StatusCodes.OK, "Users retrieved successfully", data);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 
 import MediaService from "@/app/media/media.service";
 
 import { ApiController } from "@/controllers/base/api.controller";
 import { processImage } from "@/multer/processImage";
 import { ServiceApiResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 export default class MediaController extends ApiController {
 	protected mediaService: MediaService;
@@ -25,7 +25,7 @@ export default class MediaController extends ApiController {
 			const urls = await processImage(this.request);
 
 			return this.apiResponse.sendResponse({
-				status: status.HTTP_200_OK,
+				status: StatusCodes.CREATED,
 				message: "Media uploaded successfully",
 				data: urls
 			});

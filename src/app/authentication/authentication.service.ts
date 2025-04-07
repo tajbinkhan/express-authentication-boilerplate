@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { and, eq } from "drizzle-orm";
+import { StatusCodes } from "http-status-codes";
 import { Profile as GoogleUserProfile } from "passport-google-oauth20";
 
 import { CreateUserType } from "@/app/authentication/authentication.type";
@@ -10,7 +11,6 @@ import { AccountSchemaType, UserSchemaType } from "@/databases/drizzle/types";
 import { accounts, users } from "@/models/drizzle/authentication.model";
 import AppHelpers from "@/utils/appHelpers";
 import { ServiceApiResponse, ServiceResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 export default class AuthenticationService extends DrizzleService {
 	async createUser(
@@ -23,11 +23,7 @@ export default class AuthenticationService extends DrizzleService {
 
 			const { password, ...user } = createdUser[0];
 
-			return ServiceResponse.createResponse(
-				status.HTTP_201_CREATED,
-				"User created successfully",
-				user
-			);
+			return ServiceResponse.createResponse(StatusCodes.CREATED, "User created successfully", user);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -57,7 +53,7 @@ export default class AuthenticationService extends DrizzleService {
 				.returning();
 
 			return ServiceResponse.createResponse(
-				status.HTTP_201_CREATED,
+				StatusCodes.CREATED,
 				"Google account created successfully",
 				createdGoogleAccount[0]
 			);
@@ -95,7 +91,7 @@ export default class AuthenticationService extends DrizzleService {
 					const { accounts: userAccounts, ...user } = checkUserExistence;
 
 					return ServiceResponse.createResponse(
-						status.HTTP_200_OK,
+						StatusCodes.OK,
 						"Google account updated successfully",
 						user
 					);
@@ -106,7 +102,7 @@ export default class AuthenticationService extends DrizzleService {
 					const { accounts: userAccounts, ...user } = checkUserExistence;
 
 					return ServiceResponse.createResponse(
-						status.HTTP_201_CREATED,
+						StatusCodes.CREATED,
 						"Google account created successfully",
 						user
 					);
@@ -127,7 +123,7 @@ export default class AuthenticationService extends DrizzleService {
 			await this.createGoogleAccount(createdUser.data?.id!, data, accessToken);
 
 			return ServiceResponse.createResponse(
-				status.HTTP_201_CREATED,
+				StatusCodes.CREATED,
 				"User created successfully",
 				createdUser.data
 			);
@@ -146,7 +142,7 @@ export default class AuthenticationService extends DrizzleService {
 				const user = await this.findUserByEmail(username, true);
 				findUser = user.data!;
 				return ServiceResponse.createResponse(
-					status.HTTP_200_OK,
+					StatusCodes.OK,
 					"User found successfully",
 					findUser as UserSchemaType
 				);
@@ -154,13 +150,13 @@ export default class AuthenticationService extends DrizzleService {
 				const user = await this.findUserByUsername(username, true);
 				findUser = user.data!;
 				return ServiceResponse.createResponse(
-					status.HTTP_200_OK,
+					StatusCodes.OK,
 					"User found successfully",
 					findUser as UserSchemaType
 				);
 			}
 			return ServiceResponse.createResponse(
-				status.HTTP_400_BAD_REQUEST,
+				StatusCodes.BAD_REQUEST,
 				"Invalid input type",
 				findUser as UserSchemaType
 			);
@@ -179,15 +175,15 @@ export default class AuthenticationService extends DrizzleService {
 			});
 
 			if (!user)
-				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "User not found");
+				return ServiceResponse.createRejectResponse(StatusCodes.NOT_FOUND, "User not found");
 
 			if (withPassword)
-				return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
+				return ServiceResponse.createResponse(StatusCodes.OK, "User found successfully", user);
 
 			const { password, ...userData } = user;
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"User found successfully",
 				userData as UserSchemaType
 			);
@@ -206,15 +202,15 @@ export default class AuthenticationService extends DrizzleService {
 			});
 
 			if (!user)
-				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "User not found");
+				return ServiceResponse.createRejectResponse(StatusCodes.NOT_FOUND, "User not found");
 
 			if (withPassword)
-				return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
+				return ServiceResponse.createResponse(StatusCodes.OK, "User found successfully", user);
 
 			const { password, ...userData } = user;
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"User found successfully",
 				userData as UserSchemaType
 			);
@@ -233,15 +229,15 @@ export default class AuthenticationService extends DrizzleService {
 			});
 
 			if (!user)
-				return ServiceResponse.createRejectResponse(status.HTTP_404_NOT_FOUND, "User not found");
+				return ServiceResponse.createRejectResponse(StatusCodes.NOT_FOUND, "User not found");
 
 			if (withPassword)
-				return ServiceResponse.createResponse(status.HTTP_200_OK, "User found successfully", user);
+				return ServiceResponse.createResponse(StatusCodes.OK, "User found successfully", user);
 
 			const { password, ...userData } = user;
 
 			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
+				StatusCodes.OK,
 				"User found successfully",
 				userData as UserSchemaType
 			);
@@ -257,12 +253,9 @@ export default class AuthenticationService extends DrizzleService {
 			});
 
 			if (user)
-				return ServiceResponse.createRejectResponse(
-					status.HTTP_409_CONFLICT,
-					"User already exists"
-				);
+				return ServiceResponse.createRejectResponse(StatusCodes.CONFLICT, "User already exists");
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "User does not exist", false);
+			return ServiceResponse.createResponse(StatusCodes.OK, "User does not exist", false);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -275,12 +268,9 @@ export default class AuthenticationService extends DrizzleService {
 			});
 
 			if (user)
-				return ServiceResponse.createRejectResponse(
-					status.HTTP_409_CONFLICT,
-					"User already exists"
-				);
+				return ServiceResponse.createRejectResponse(StatusCodes.CONFLICT, "User already exists");
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "User does not exist", false);
+			return ServiceResponse.createResponse(StatusCodes.OK, "User does not exist", false);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -293,19 +283,16 @@ export default class AuthenticationService extends DrizzleService {
 		try {
 			if (!hashedPassword) {
 				return ServiceResponse.createRejectResponse(
-					status.HTTP_400_BAD_REQUEST,
+					StatusCodes.NOT_FOUND,
 					"User account has no password"
 				);
 			}
 			const check = await bcrypt.compare(password, hashedPassword);
 
 			if (!check)
-				return ServiceResponse.createRejectResponse(
-					status.HTTP_400_BAD_REQUEST,
-					"Password incorrect"
-				);
+				return ServiceResponse.createRejectResponse(StatusCodes.NOT_FOUND, "Password incorrect");
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "Password checked", check);
+			return ServiceResponse.createResponse(StatusCodes.OK, "Password checked", check);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -320,7 +307,7 @@ export default class AuthenticationService extends DrizzleService {
 				})
 				.where(eq(users.id, id));
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "User verified", true);
+			return ServiceResponse.createResponse(StatusCodes.OK, "User verified", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -331,12 +318,9 @@ export default class AuthenticationService extends DrizzleService {
 			const user = await this.findUserById(id);
 
 			if (!user.data?.emailVerified)
-				return ServiceResponse.createRejectResponse(
-					status.HTTP_400_BAD_REQUEST,
-					"User is not verified"
-				);
+				return ServiceResponse.createRejectResponse(StatusCodes.NOT_FOUND, "User is not verified");
 
-			return ServiceResponse.createResponse(status.HTTP_200_OK, "User is verified", true);
+			return ServiceResponse.createResponse(StatusCodes.OK, "User is verified", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}
@@ -353,11 +337,7 @@ export default class AuthenticationService extends DrizzleService {
 				})
 				.where(eq(users.id, id));
 
-			return ServiceResponse.createResponse(
-				status.HTTP_200_OK,
-				"Password changed successfully",
-				true
-			);
+			return ServiceResponse.createResponse(StatusCodes.OK, "Password changed successfully", true);
 		} catch (error) {
 			return ServiceResponse.createErrorResponse(error);
 		}

@@ -1,11 +1,11 @@
 import { and, eq } from "drizzle-orm";
+import { StatusCodes } from "http-status-codes";
 
 import DrizzleService from "@/databases/drizzle/service";
 import { TokenType, UserSchemaType } from "@/databases/drizzle/types";
 import { verificationToken } from "@/models/drizzle/authentication.model";
 import AppHelpers from "@/utils/appHelpers";
 import { ServiceResponse } from "@/utils/serviceApi";
-import { status } from "@/utils/statusCodes";
 
 export default class OTPService extends DrizzleService {
 	private async limitOTPRequest(
@@ -30,7 +30,7 @@ export default class OTPService extends DrizzleService {
 
 			if (otpRequestCount && timeDifferenceInMinutes < timeLimit) {
 				const message = `You can only request OTP per ${timeLimit} minute(s). Please wait for ${timeLimit - timeDifferenceInMinutes} minute(s)`;
-				return ServiceResponse.createRejectResponse(status.HTTP_429_TOO_MANY_REQUESTS, message);
+				return ServiceResponse.createRejectResponse(StatusCodes.TOO_MANY_REQUESTS, message);
 			}
 
 			return Promise.resolve(true);
@@ -47,7 +47,7 @@ export default class OTPService extends DrizzleService {
 		try {
 			if (!user.email)
 				return ServiceResponse.createRejectResponse(
-					status.HTTP_404_NOT_FOUND,
+					StatusCodes.NOT_FOUND,
 					"Email is not registered"
 				);
 
@@ -87,11 +87,11 @@ export default class OTPService extends DrizzleService {
 			});
 
 			if (!tokenRecord)
-				return ServiceResponse.createRejectResponse(status.HTTP_400_BAD_REQUEST, "Invalid OTP");
+				return ServiceResponse.createRejectResponse(StatusCodes.BAD_REQUEST, "Invalid OTP");
 
 			if (tokenRecord?.expires && tokenRecord.expires < new Date()) {
 				await this.deleteOTPFromDatabase(user, tokenType);
-				return ServiceResponse.createRejectResponse(status.HTTP_400_BAD_REQUEST, "OTP expired");
+				return ServiceResponse.createRejectResponse(StatusCodes.BAD_REQUEST, "OTP expired");
 			}
 
 			await this.deleteOTPFromDatabase(user, tokenType);
