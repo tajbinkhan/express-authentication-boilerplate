@@ -1,5 +1,5 @@
 {
 	"version": 2,
 	"outputDirectory": "dist",
-	"rewrites": [{ "source": "/(.*)", "destination": "/dist/src/server.cjs" }]
+	"rewrites": [{ "source": "/(.*)", "destination": "/src/server.cjs" }]
 }
