@@ -1,11 +1,18 @@
 {
 	"version": 2,
-	"outputDirectory": "dist",
 	"builds": [
 		{
-			"src": "src/server.cjs",
-			"use": "@vercel/node"
+			"src": "package.json",
+			"use": "@vercel/node",
+			"config": {
+				"buildCommand": "pnpm run build"
+			}
 		}
 	],
-	"rewrites": [{ "source": "/(.*)", "destination": "/src/server.cjs" }]
+	"routes": [
+		{
+			"src": "/(.*)",
+			"dest": "src/server.cjs"
+		}
+	]
 }
