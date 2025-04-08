@@ -1,4 +1,4 @@
 {
 	"version": 2,
-	"rewrites": [{ "source": "/(.*)", "destination": "/src/server.cjs", "use": "@vercel/node" }]
+	"rewrites": [{ "source": "/(.*)", "destination": "/src/server.cjs" }]
 }
