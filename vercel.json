@@ -1,18 +1,4 @@
 {
 	"version": 2,
-	"builds": [
-		{
-			"src": "src/server.cjs",
-			"use": "@vercel/node",
-			"config": {
-				"buildCommand": "pnpm run build"
-			}
-		}
-	],
-	"routes": [
-		{
-			"src": "/(.*)",
-			"dest": "src/server.cjs"
-		}
-	]
+	"rewrites": [{ "source": "/(.*)", "destination": "/src/server.ts" }]
 }
