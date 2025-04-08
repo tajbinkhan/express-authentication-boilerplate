@@ -1,4 +1,22 @@
 {
 	"version": 2,
-	"rewrites": [{ "source": "/(.*)", "destination": "/src/server.cjs" }]
+	"builds": [
+		{
+			"src": "package.json",
+			"use": "@vercel/node",
+			"config": {
+				"buildCommand": "pnpm run build"
+			}
+		},
+		{
+			"src": "dist/src/server.cjs",
+			"use": "@vercel/node"
+		}
+	],
+	"routes": [
+		{
+			"src": "/(.*)",
+			"dest": "/dist/src/server.cjs"
+		}
+	]
 }
