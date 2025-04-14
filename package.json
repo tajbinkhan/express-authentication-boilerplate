@@ -5,7 +5,6 @@
 	"main": "server.js",
 	"type": "module",
 	"scripts": {
-		"preinstall": "npx only-allow pnpm",
 		"build": "tsc --noEmit && eslint . && rimraf dist && tsup",
 		"dev": "nodemon",
 		"start": "node dist/src/server.cjs",
