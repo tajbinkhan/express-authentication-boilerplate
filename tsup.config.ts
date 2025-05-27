@@ -5,9 +5,5 @@ export default defineConfig({
 	splitting: false,
 	sourcemap: false,
 	clean: true,
-	define: { "process.env.NODE_ENV": "'production'" },
-	format: ["esm"],
-	outExtension: () => ({
-		js: `.js`
-	})
+	define: { "process.env.NODE_ENV": "'production'" }
 });

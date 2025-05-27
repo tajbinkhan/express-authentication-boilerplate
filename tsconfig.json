@@ -1,6 +1,13 @@
 {
 	"compilerOptions": {
-		"target": "ESNext",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"target": "es2022",
+		"allowJs": true,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"isolatedModules": true,
+		// "verbatimModuleSyntax": true,
 		"module": "ESNext",
 		"baseUrl": ".",
 		"rootDir": ".",
@@ -10,14 +17,11 @@
 		"moduleResolution": "Node",
 		"outDir": "dist",
 		"importsNotUsedAsValues": "remove",
-		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
 		"noPropertyAccessFromIndexSignature": false,
-		"skipLibCheck": true,
 		"typeRoots": ["./node_modules/@types", "types"],
-		"sourceMap": true,
-		"resolveJsonModule": true
+		"sourceMap": true
 	},
 	"include": ["**/*.ts", "types/express", "build.js"],
 	"exclude": ["node_modules"]
