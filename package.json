@@ -2,7 +2,8 @@
 	"name": "express-authentication-boilerplate",
 	"version": "1.0.0",
 	"description": "",
-	"main": "server.js",
+	"type": "module",
+	"main": "dist/src/server.js",
 	"scripts": {
 		"build": "tsc --noEmit && eslint . && rimraf dist && tsup",
 		"dev": "nodemon",

@@ -1,22 +1,21 @@
 {
 	"compilerOptions": {
 		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
 		"skipLibCheck": true,
-		"target": "es2022",
+		"target": "ES2022",
 		"allowJs": true,
 		"resolveJsonModule": true,
 		"moduleDetection": "force",
 		"isolatedModules": true,
-		// "verbatimModuleSyntax": true,
 		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"baseUrl": ".",
 		"rootDir": ".",
 		"paths": {
 			"@/*": ["src/*"]
 		},
-		"moduleResolution": "Node",
 		"outDir": "dist",
-		"importsNotUsedAsValues": "remove",
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
 		"noPropertyAccessFromIndexSignature": false,

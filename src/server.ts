@@ -1,9 +1,11 @@
-import { version as expressVersion } from "express/package.json";
 import ip from "ip";
 import pc from "picocolors";
 
 import app from "@/app";
 import "@/core/env";
+import getExpressVersion from "@/version";
+
+const expressVersion = getExpressVersion();
 
 const startServer = async () => {
 	const initialPort = process.env.PORT || 8080;
