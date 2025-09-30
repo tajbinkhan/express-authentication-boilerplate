@@ -1,5 +1,16 @@
 # Express Authentication Boilerplate
 
+---
+
+## ⚠️ **DISCONTINUED** ⚠️
+
+**This project is no longer maintained.**
+
+🚀 **Please migrate to the latest version:**
+[express-authentication-v2](https://github.com/tajbinkhan/express-authentication-v2.git)
+
+---
+
 A comprehensive authentication system built with Express.js and TypeScript, providing
 enterprise-grade security features and multiple authentication strategies.
 
